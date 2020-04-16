@@ -239,7 +239,7 @@ init => run => test => publish
 
 > 运用前面讲到的学习方法去整理前端技术体系，待补充...
 
-![](http://assets.processon.com/chart_image/5e970d6b0791293bf972d03b.png)
+![](https://tva1.sinaimg.cn/large/007S8ZIlgy1gdvoai93swj30u00x04qp.jpg)
 
 ### 其他
 
