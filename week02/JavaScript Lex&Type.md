@@ -1,6 +1,12 @@
 # JavaScript 词法与类型
 
-## 词法
+## [词法](https://zh.wikipedia.org/wiki/%E8%AF%8D%E6%B3%95%E5%88%86%E6%9E%90)
+
+> **词法分析**（英语：**lexical analysis**）是[计算机科学](https://zh.wikipedia.org/wiki/计算机科学)中将字符序列转换为**标记**（token）序列的过程。进行词法分析的程序或者函数叫作**词法分析器**（lexical analyzer，简称lexer），也叫**扫描器**（scanner）。词法分析器一般以函数的形式存在，供[语法分析器](https://zh.wikipedia.org/wiki/语法分析器)调用。
+
+
+
+
 
 ### unicode
 
