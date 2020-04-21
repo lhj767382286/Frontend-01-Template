@@ -13,7 +13,7 @@
     * BMP
 * 简单介绍：
   * 万国码、国际码、统一码、单一码
-  * 为每种语言中的每个字符设定了统一并且唯一的二进制编码
+  * 为每种语言中的每个字符甚至 `emoji`设定了统一并且唯一的二进制编码
   * 使得电脑可以用更为简单的方式来呈现和处理文字
 * 其他：
   * 可用 `String.fromCharCode(num)` `'\t'.codePointAt()` 打印
@@ -79,11 +79,7 @@
 
 ### 1.4 其他
 
-* [UCS](https://blog.csdn.net/hong10086/article/details/80654380)
-
-
-
-#### 1.3.1 Unicode 与 UTF-8
+#### 1.4.1 Unicode 与 UTF-8
 
 * **[字符集](https://zh.wikipedia.org/zh-cn/%E5%AD%97%E7%AC%A6%E7%BC%96%E7%A0%81)**：
   * **定义**：为每一个「字符」分配一个唯一的 ID（学名为码位 / 码点 / Code Point）
@@ -100,7 +96,7 @@
     * UTF-8 以字节为单位对 Unicode 进行编码
     * [UTF-16](https://baike.baidu.com/item/UTF-16) 以 16 位无符号整数为单位对 Unicode 进行编码
 
-#### 1.3.2 中文变量名
+#### 1.4.2 中文变量名
 
 ```javascript
 var 厉害 = 1;
@@ -166,7 +162,7 @@ WhiteSpace ::
 | `<SP>`     | 空格                        | [\u0020](https://www.fileformat.info/info/unicode/char/0020/index.htm) | `' '.codePointAt(0)` |
 | `<NBSP>`   | 非断空格      | [\u00A0](https://www.fileformat.info/info/unicode/char/00a0/index.htm) | NO-BREAK SPACE                               |
 | `<ZWNBSP>` / `<BOM>` | 位序掩码              | [\uFEFF](https://www.fileformat.info/info/unicode/char/feff/index.htm) | ZWNBSP：ZERO WIDTH NO-BREAK SPACE<br />BOM：BYTE ORDER MARK |
-| `<USP>`    | 其它任何Unicode"空白分隔符" | 其它分类“Zs” |                                                            |
+| `<USP>`    | 其它任何Unicode"空白分隔符" | 其它分类“[Zs](https://www.fileformat.info/info/unicode/category/Zs/list.htm)” |                                                            |
 
 
 
@@ -174,7 +170,10 @@ WhiteSpace ::
 
 > NO-BREAK SPACE：非断空格
 
-* 普通空格，除了本身空格作用外，实际上也起到了分词效果
+* 空格字符，用途是禁止自动换行
+* HTML 页面显示时会自动合并多个连续的空白字符（whitespace character），但该字符是禁止合并的，因此该字符也称作“硬空格”（hard space、fixed space）
+
+* 普通空格：除了本身空格作用外，实际上也起到了分词效果
   * 断行断在分词之间
 
 ```html
@@ -219,154 +218,147 @@ LineTerminator ::
 	<PS>
 ```
 
-| 正式名称 | 名称     | 字符编码值 | 其他                        |
-| -------- | -------- | ---------- | --------------------------- |
-| <LF>     | 进行符   | \u000A     | '\n'。一般使用这个          |
-| <CR>     | 回车符   | \u000D     | '\r'。                      |
-| <LS>     | 行分隔符 | \u2028     | 超出ASCII。最佳实践一般不用 |
-| <PS>     | 段分隔符 | \u2029     | 超出ASCII。最佳实践一般不用 |
+| 正式名称 | 名称     | 字符编码值 | 其他                                             |
+| -------- | -------- | ---------- | ------------------------------------------------ |
+| <LF>     | 进行符   | \u000A     | LINE FEED: `\n`。**一般推荐统一使用这个**        |
+| <CR>     | 回车符   | \u000D     | CARRIAGE RETURE：`\r`。                          |
+| <LS>     | 行分隔符 | \u2028     | LINE SEPARATOR：超出ASCII。最佳实践一般不用      |
+| <PS>     | 段分隔符 | \u2029     | PARAGRAPH SEPARATOR：超出ASCII。最佳实践一般不用 |
 
-### 2.2 Atom
+一般写代码，最好字符限制在 ASCII 内，其次是 BMP。
 
-* Grammer
-  * Literal
-  * Variable
+
+
+#### 2.1.3 Comment
+
+```javascript
+// '*'.codePointAt(0).toString(16); // 2a
+
+/\u002a 1111*/ // 注释失败
+```
+
+
+
+#### 2.1.4 Token
+
+> 记号、标记。JS 里有效的输入元素都可以叫 Token。
+
+##### 2.1.4.1 旧的分类
+
+* 主要由下面 4  类组成，构成了整个代码的主体部分：
+  * Punctuator  - 符号
+    * 示例：`=, (), <, <=`
+  * Keywords - 关键字
+    * 示例：`for, while`
+  * Identfiter - 变量名
+    * 示例：`let a = 123 中的 a`
+    * 细分：
+      * 变量名部分
+        * 如下面中的 `document` 和 `a`
+        * 不能与关键字重合
+      * 属性部分
+        * 如下面中的 `write`
+        * 可以与关键字重合
+  * Literal - 直接量
+    * 示例：`true, false, 1, null`
+
+```javascript
+// 一、分类：
+1. 帮助程序形成结构用的：Punctuator、Keywords
+2. 我们实际代码中包含的有效信息：Indentifier、Literal
+
+// 二、示例：
+for(let i = 0 ; i < 128; i++) {
+	document.write(i);
+}
+let a = 1;
+
+// 三、javascript 的特殊：
+// 1. get 明明不在关键字中，却起到了关键字的作用。但其实 get 可以当作变量名使用
+{
+	get a() {}
+}
+let get = 1;
+
+// 2. className 问题。因为 v3 中不支持变量名与关键字重合
+document.body.setAttribute('class', 'a');
+document.body.className // a, 实际属性是叫 class
+document.body.class	// v3 中报错
+document.body.class = 'b' // 现在版本
+```
+
+
+
+##### 2.1.4.2 新的分类
+
+主要由下面 3 类组成，构成了整个代码的主体部分：
+
+* Punctuator
+* **IdentfiterName**
   * Keywords
-  * Whitespace
-  * Line Terminator
+  * Identifier - 
+  * Future reserved Keywords - 未来保留字
+* Literal
+
+```
+Identifier ::
+	IdentifierName but not ReservedWord
+	
+IdentifierName :: IdentifierStart
+	IdentifierName IdentifierPart
+
+IdentifierStart :: 
+	UnicodeIDStart
+	$
+	_
+	\ UnicodeEscapeSequence
+
+IdentifierPart :: 
+	UnicodeIDContinue
+	$
+	\ UnicodeEscapeSequence 
+	<ZWNJ>  // 可做代码混淆
+	<ZWJ>		// 可做代码混淆
+	
+UnicodeIDStart ::
+	any Unicode code point with the Unicode property “ID_Start”
+	
+UnicodeIDContinue ::
+	any Unicode code point with the Unicode property “ID_Continue”
+```
 
 
+
+> Literal，请参考下面关于类型的内容
 
 ## 3. 类型
 
 * Runtime
   * Types
+    * Number
+    * String
+    * Boolean
+    * Boolean
+    * Object
+    * Null
+    * Undefined
+    * Symbol
   * Execution Context
+  
+  
+
+### 3.1 Number
+
+#### 3.1.1 IEEE 754 Double Float
+
+* Sign(1)
+* Exponent (11)
+* Fraction (52)
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-http://www.fileformat.info/info/unicode/block/basic_latin/list.htm
-
-http://www.fileformat.info/info/unicode/block/index.htm
-
-https://www.w3cschool.cn/wsqzg/wsqzg-qdgl25mj.html
-
-https://tool.oschina.net/uploads/apidocs/jquery/regexp.html
-
-```
-InputElementDiv
-	WhiteSpace // 空白符
-	LineTerminator // 换行符
-	Comment // 注释
-	Punctuator //
-	Token
-		//	帮助形成结构
-		Punctuator	// 符号, "() = ;"
-		Keywords	// 关键词 for
-
-		// 实际我们输入有效信息
-		Identfiter // 标识符。名字。变量名
-			// 变量名部分 - 不可与关键词重合
-			// 属性部分 - 可与关键字重合
-		Literal // 直接量 true, false ...
-
-
-```
-
-
-
-### LineTerminator
-
-| 正式名称 | 名称     | 字符编码值 | 其他                        |
-| -------- | -------- | ---------- | --------------------------- |
-| <LF>     | 进行符   | \u000A     | '\n'。一般使用这个          |
-| <CR>     | 回车符   | \u000D     | '\r'。                      |
-| <LS>     | 行分隔符 | \u2028     | 超出ASCII。最佳实践一般不用 |
-| <PS>     | 段分隔符 | \u2029     | 超出ASCII。最佳实践一般不用 |
-
-不要超出 ASCII。如果超出也不要超过 BMP。
-
-Basic Multilingual Plane 就是BMP
-
-关于“回车”（carriage return）和“换行”（line feed）这两个概念的来历和区别。
-在计算机还没有出现之前，有一种叫做电传打字机（Teletype Model 33）的玩意，每秒钟可以打10个字符。但是它有一个问题，就是打完一行换行的时候，要用去0.2秒，正好可以打两个字符。要是在这0.2秒里面，又有新的字符传过来，那么这个字符将丢失。
-
-于是，研制人员想了个办法解决这个问题，就是在每行后面加两个表示结束的字符。一个叫做“回车”，告诉打字机把打印头定位在左边界；另一个叫做“换行”，告诉打字机把纸向下移一行。
-
-这就是“换行”和“回车”的来历，从它们的英语名字上也可以看出一二。
-
-### Comment
-
-### Token
-
-```
-	Token
-		//	帮助形成结构
-		Punctuator	// 符号, "() = ;"
-		Keywords	// 关键词 for
-
-		// 实际我们输入有效信息
-		Identfiter // 标识符。名字。变量名
-			// 变量名部分 - 不可与关键词重合
-			// 属性部分 - 可与关键字重合
-		Literal // 直接量 true, false ...
-
-
-// 现在：
-Token ::
-  Punctuator
-  IdentifierName
-  	Keywords
-  	Identfiter
-  	Future reserverd Keywords: enum
-	Literal
-		Number
-		String
-		Boolean
-		Object
-		Null
-		Undefined
-		Symbol
-
-```
-
-
-
-#### Literal
-
-Number
-
-精度问题 IEEE753
 
 ```javascript
+// 模拟 float 在内存中的存储
 var a = 0.1;
 var b = 0.2;
 
@@ -385,41 +377,154 @@ for (let i = 0; i < 8; i++) {
 
 
 
+#### 3.1.2 Grammer
+
+> 分为整数型及小数型语法。其中整数型又支持 2、8、10、16 进制的写法。其中 10 进制又支持小数写法。
+
+* DecimalLiteral - 10 进制
+  * `0`
+  * `0.`
+  * `.0`
+  * `1e3`
+
+* BinaryIntegerLiteral
+  * `ob111`
+* OctalIntegerLiteral
+  * `0o10`
+* HexintegerLiteral
+  * `0xFF`
 
 
-作业 正则 - 匹配所有 js 的number 类型
 
+```javascript
+00010 // 8 => 不推荐
+0o10 // 8 => 推荐
 
+12.5e5 // 1250000
 
-![image-20200418210033212](https://tva1.sinaimg.cn/large/007S8ZIlgy1gdy7xkxzfij31i00mqjt3.jpg)
+.0 // 0
+0. // 0
 
-
-
+0.toString(); // Invalid or unexpected token
+0 .toString(); // "0"
+97.toString(2); // Invalid or unexpected token
+97 .toString(2); // "1100001"
+// 分析 - 词法问题：
+// 1."97."、"0." 是合法的数，所以在词法分析阶段，优选把会 "." 当作跟 "97" 粘在一起的东西。
+// 2. 点前面加空格，"97 ." 避免被当成与数字相关的小数点
+// 3. 因此那些不被真正识别的字符，如空格，起到调整词法结构和让文本美观的作用
 ```
-97 .toString(2)
-// 点前面加空格，"97." 避免被当成与数字相关的小数点
-"97." 是合法的数
-// 0110 0001
 
-ASCII // 0 -128
-UCS - // unicode 的 bmp 范围。不超过 ffff。 u+0000-U+FFFF
-```
+
+
+> 注意：关于 10 进制，建议直接写字面量，避免使用 `parseInt`，如果确实需要使用，需要切确传第二个参数。
+
+
+
+#### 3.1.3 Practice
+
+* Safe Integer
+  * 安全的整数范围：`Number.MAX_SAFE_INTEGER.toString(16); // "1fffffffffffff`
+* Float Compare
+  * 正确写法：`Math.abs(0.1 + 0.2 - 0.3) <= Number.EPSILON`
+
+
+
+### 3.2 String
+
+* Character
+* Code Point
+* Encoding
 
 定义编码后，怎么存呢？
 
-UTF-8
-
-UTF-16
-
-- Unicode 是「字符集」：为每一个「字符」分配一个唯一的 ID（学名为码位 / 码点 / Code Point）
-- UTF-8 是「编码规则」：将「码位」转换为字节序列的规则（编码/解码 可以理解为 加密/解密 的过程）
-
-https://www.zhihu.com/question/23374078
 
 
 
 
+#### 3.2.1 Encoding
 
-写一个 UTF8_Encoding 函数
+> 字符集
+
+* ASCII 
+* Unicode
+* UCS
+* GB
+  * GB2312
+  * GBK(GB13000)
+  * GB18030
+* ISO-8859
+* BIG5 - 台湾、繁体中文
+
+
+
+##### 3.2.1.1 [UCS](https://blog.csdn.net/hong10086/article/details/80654380)
+
+* Unicode 的 BMP 范围
+* 码点范围：`u+0000-U+FFFF`
+
+##### 3.2.1.2 GB
+
+* 国标
+* 中文字符范围跟 Unicode 完全不一样
+* 也会兼容 ASCII
+
+##### 3.2.1.3 ISO-8859 系列
+
+* 与 GB 类似
+
+* 一堆欧洲国家各种自己的标准
+
+
+
+
+
+##### 3.2.1.4 UTF
+
+> 每种字符集对应着多种编码方式，即码点定了，但是这个码点如何储存？
+
+* Unicode 的编码
+* 用不同的编码形式储存不同的字符，好坏不一定
+  * 以 ASCII 为主，用 UTF-8
+  * 以中文为主，用 UTF-16
+* UTF-32 由于太耗内存空间，因此可以认为是理论上的
+
+![image-20200421001836671](https://tva1.sinaimg.cn/large/007S8ZIlgy1ge0ow9ft4qj31ui0lydnx.jpg)
+
+
+
+```
+如，"ab" 两个字符：
+
+1. 使用 UTF-8 存，占了 2 个字节
+2. 使用 UTF-16 存，占了 4 个字节
+
+但是 UTF-8 也可以表示超出 ASCII 的字符（把字节里的比特位做成控制位），如： 中文“壹”在 UTF-16 中无损，在 UTF-8 中占 3 个字节：
+```
+
+
+
+![image-20200421002149566](https://tva1.sinaimg.cn/large/007S8ZIlgy1ge0ozkn417j31pc0i4tff.jpg)
+
+
+
+> 注意：在 JavaScript 中，基本可以认为字符是以 UTF-16 在内存中存储，所以不承认 BMP 外的字符是一个字符。那么 `String.charCodeAt` 和 `String.fromCharCode` 性能应该是好于 `String.codePointAt`，如果字符串非常大， `codePointAt`并不是一个好的选择。
+
+
+
+
+
+
+
+
+
+
+
+![image-20200421003219377](/Users/irvingliang/Library/Application Support/typora-user-images/image-20200421003219377.png)
 
 ![image-20200418213039148](https://tva1.sinaimg.cn/large/007S8ZIlgy1gdy8suonbrj31fa0m8117.jpg)
+
+https://www.w3cschool.cn/wsqzg/wsqzg-qdgl25mj.html
+
+https://tool.oschina.net/uploads/apidocs/jquery/regexp.html
+
