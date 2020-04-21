@@ -5,4 +5,4 @@
 本周
 
 * [编程语言的通识](./编程语言的通识.md)
-* [JavaScript 词法与类型](./JavaScript Lex&Type.md)
+* [JavaScript 词法与类型](./JavaScript_Lex&Type.md)
