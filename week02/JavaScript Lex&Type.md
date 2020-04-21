@@ -349,7 +349,7 @@ UnicodeIDContinue ::
 
 ### 3.1 Number
 
-#### 3.1.1 IEEE 754 Double Float
+#### 3.1.1 [IEEE 754 Double Float](https://github.com/camsong/blog/issues/9)
 
 * Sign(1)
 * Exponent (11)
