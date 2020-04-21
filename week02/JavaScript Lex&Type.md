@@ -248,6 +248,7 @@ LineTerminator ::
 * 主要由下面 4  类组成，构成了整个代码的主体部分：
   * Punctuator  - 符号
     * 示例：`=, (), <, <=`
+    * 不包含 `/, }`
   * Keywords - 关键字
     * 示例：`for, while`
   * Identfiter - 变量名
@@ -296,33 +297,33 @@ document.body.class = 'b' // 现在版本
 * Punctuator
 * **IdentfiterName**
   * Keywords
-  * Identifier - 
-  * Future reserved Keywords - 未来保留字
+  * Identifier
+  * Future Reserved Words - 未来保留字
 * Literal
 
 ```
 Identifier ::
 	IdentifierName but not ReservedWord
-	
+
 IdentifierName :: IdentifierStart
 	IdentifierName IdentifierPart
 
-IdentifierStart :: 
+IdentifierStart ::
 	UnicodeIDStart
 	$
 	_
 	\ UnicodeEscapeSequence
 
-IdentifierPart :: 
+IdentifierPart ::
 	UnicodeIDContinue
 	$
-	\ UnicodeEscapeSequence 
+	\ UnicodeEscapeSequence
 	<ZWNJ>  // 可做代码混淆
 	<ZWJ>		// 可做代码混淆
-	
+
 UnicodeIDStart ::
 	any Unicode code point with the Unicode property “ID_Start”
-	
+
 UnicodeIDContinue ::
 	any Unicode code point with the Unicode property “ID_Continue”
 ```
@@ -338,14 +339,13 @@ UnicodeIDContinue ::
     * Number
     * String
     * Boolean
-    * Boolean
     * Object
     * Null
     * Undefined
     * Symbol
   * Execution Context
-  
-  
+
+
 
 ### 3.1 Number
 
@@ -435,10 +435,7 @@ for (let i = 0; i < 8; i++) {
 * Character
 * Code Point
 * Encoding
-
-定义编码后，怎么存呢？
-
-
+* Grammer
 
 
 
@@ -446,7 +443,7 @@ for (let i = 0; i < 8; i++) {
 
 > 字符集
 
-* ASCII 
+* ASCII
 * Unicode
 * UCS
 * GB
@@ -474,8 +471,6 @@ for (let i = 0; i < 8; i++) {
 * 与 GB 类似
 
 * 一堆欧洲国家各种自己的标准
-
-
 
 
 
@@ -512,19 +507,112 @@ for (let i = 0; i < 8; i++) {
 
 
 
+#### 3.2.2 Grammer
+
+* "abc" - 双引号语法
+* 'abc' - 单引号语法
+* \`abc\` - 模板语法
+
+
+
+```
+StringLiteral ::
+	" DoubleStringCharacters "
+	' SingleStringCharacters '
+
+DoubleStringCharacters ::
+	DoubleStringCharacter
+	DoubleStringCharacters
+
+DoubleStringCharacter  ::
+	// 任意但不包括双引号、反斜杠、换行符、的 unicode 码点字符
+	SourceCharacter but not one of " or \ or LineTerminator 
+	<LS>
+	<PS>
+	
+	// 反斜杠 + 转义序列(\u 转义 + \x 转义)。如："\x10" 和 "\u000A"
+	// 除此之外还支持一些特殊的字符：' " \ b f n r t v。如 "\\"、"\b"、"\""、"\'"
+	// 具体详见： ECMA-262 P172 Table 34 
+	\ EscapeSequence	
+	
+	LineContinuation // 反斜杠 + 换行
+
+SingleStringCharacters ::
+	SingleStringCharacter
+	SingleStringCharacters
+
+SingleStringCharacter ::
+	SourceCharacter but not one of ' or \ or LineTerminator 
+	<LS>
+	<PS>
+	\ EscapeSequence
+	LineContinuation
+	
+	
+// javascript 词法中其实有 4 份顶级输入元素，只要是为了处理模板字符及正则表达式。关于 TemplateTail ，当左大括号消耗完时，右大括号会被当成 TemplateTail 分析。 具体可看 P174
+
+Template :: 
+	NoSubstitutionTemplate
+	TemplateHead
+	
+NoSubstitutionTemplate ::
+	` TemplateCharacters `
+	
+TemplateHead ::
+	` TemplateCharactersopt ${
+	
+TemplateSubstitutionTail :: 
+	TemplateMiddle
+	TemplateTail
+
+TemplateMiddle ::
+	} TemplateCharacters ${
+	
+TemplateTail ::
+	} TemplateCharacters `
+```
 
 
 
 
 
+### 3.3 Boolean
+
+* true
+* false
 
 
 
-![image-20200421003219377](/Users/irvingliang/Library/Application Support/typora-user-images/image-20200421003219377.png)
+### 3.4 Null 和 Undefined
 
-![image-20200418213039148](https://tva1.sinaimg.cn/large/007S8ZIlgy1gdy8suonbrj31fa0m8117.jpg)
+> 建议看极客时间重学前端的这部分内容
 
-https://www.w3cschool.cn/wsqzg/wsqzg-qdgl25mj.html
+* null
+* undefined
+* void 0
 
-https://tool.oschina.net/uploads/apidocs/jquery/regexp.html
+
+
+```javascript
+function f() {
+	var undefined = 1;
+	console.log(undefined); // 1
+}
+
+function f() {
+	var null = 0;
+  console.log(null); // Unexpected token 'null'
+}
+```
+
+
+
+## 4. 总结
+
+![词法与类型](https://tva1.sinaimg.cn/large/007S8ZIlgy1ge1f100qrmj30u01m77wh.jpg)
+
+## 5. 参考
+
+* [Ecma 标准 - 5.1 中文版本](https://www.w3cschool.cn/wsqzg/wsqzg-qdgl25mj.html)
+
 
