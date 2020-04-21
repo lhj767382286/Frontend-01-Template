@@ -220,10 +220,10 @@ LineTerminator ::
 
 | 正式名称 | 名称     | 字符编码值 | 其他                                             |
 | -------- | -------- | ---------- | ------------------------------------------------ |
-| <LF>     | 进行符   | \u000A     | LINE FEED: `\n`。**一般推荐统一使用这个**        |
-| <CR>     | 回车符   | \u000D     | CARRIAGE RETURE：`\r`。                          |
-| <LS>     | 行分隔符 | \u2028     | LINE SEPARATOR：超出ASCII。最佳实践一般不用      |
-| <PS>     | 段分隔符 | \u2029     | PARAGRAPH SEPARATOR：超出ASCII。最佳实践一般不用 |
+| `<LF>`   | 进行符   | \u000A     | LINE FEED: `\n`。**一般推荐统一使用这个**        |
+| `<CR>`   | 回车符   | \u000D     | CARRIAGE RETURE：`\r`。                          |
+| `<LS>`   | 行分隔符 | \u2028     | LINE SEPARATOR：超出ASCII。最佳实践一般不用      |
+| `<PS>`   | 段分隔符 | \u2029     | PARAGRAPH SEPARATOR：超出ASCII。最佳实践一般不用 |
 
 一般写代码，最好字符限制在 ASCII 内，其次是 BMP。
 
