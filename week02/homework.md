@@ -135,8 +135,6 @@ str.match(reg);
 
 > [参考网站](https://mothereff.in/utf-8)
 
-
-
 **示例 1：**
 
 ```javascript
@@ -206,12 +204,10 @@ const encodeUTF8 = (str) => {
     // 获取当前字符码点
     let codePoint = v.codePointAt(0);
     if (codePoint <= 127) {
-
       // 1. ASCII 范围 - 直接返回 16 进制
       return '\\x' + codePoint.toString(16).toUpperCase();
 
     } else if (codePoint <= 2047) {
-
       // 2. 拉丁文等
       // 获取当前字符码点的 11 位二进制数
       let codePonit2Binary = codePoint.toString(2).padStart(11, '0');
@@ -220,7 +216,6 @@ const encodeUTF8 = (str) => {
       return firstByte + secondByte;
 
     } else if (codePoint <= 65535) {
-
       // 3. 除1，2外的 BMP
       // 获取当前字符码点的 16 位二进制数
       let codePonit2Binary = codePoint.toString(2).padStart(16, '0');
@@ -237,8 +232,6 @@ const encodeUTF8 = (str) => {
 
 encodeUTF8('irving壹א'); // \x69\x72\x76\x69\x6E\x67\xE5\xA3\xB9\xD7\x90
 ```
-
-
 
 
 
@@ -273,14 +266,14 @@ encodeUTF8('irving壹א'); // \x69\x72\x76\x69\x6E\x67\xE5\xA3\xB9\xD7\x90
       * `\u Hex4Digits`
     * 换行符转义：`\\\n \\\r \\u2028 \\u2029`
 
-单引号：
+可以看出单双引号字符串的字面量其实类似，具体如下：
 
 ```javascript
 // <LS> / <PS>
-/\u2028|\u2029/g
+/\\u2028|\\u2029/g
 
 // unicode 字符
-/\u[0-9a-fA-F]{4}/g
+/\\u[0-9a-fA-F]{4}/g
 
 // 转义- 16 进制：\x HexDigit HexDigit
 /\\x[0-9a-fA-F]{2}/g
@@ -300,7 +293,11 @@ encodeUTF8('irving壹א'); // \x69\x72\x76\x69\x6E\x67\xE5\xA3\xB9\xD7\x90
 ### 3.2 解答
 
 ```javascript
+// 单引号
+/(?:[^'\n\\\r\u2028\u2029]|\\(?:['"\\bfnrtv\n\r\u2028\u2029]|\r\n)|\\x[0-9a-fA-F]{2}|\\u[0-9a-fA-F]{4}|\\[^0-9ux'"\\bfnrtv\n\\\r\u2028\u2029])*/g
 
+// 双引号
+/(?:[^"\n\\\r\u2028\u2029]|\\(?:['"\\bfnrtv\n\r\u2028\u2029]|\r\n)|\\x[0-9a-fA-F]{2}|\\u[0-9a-fA-F]{4}|\\[^0-9ux'"\\bfnrtv\n\\\r\u2028\u2029])*/g
 ```
 
 
