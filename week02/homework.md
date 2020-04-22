@@ -276,6 +276,12 @@ encodeUTF8('irving壹א'); // \x69\x72\x76\x69\x6E\x67\xE5\xA3\xB9\xD7\x90
 单引号：
 
 ```javascript
+// <LS> / <PS>
+/\u2028|\u2029/g
+
+// unicode 字符
+/\u[0-9a-fA-F]{4}/g
+
 // 转义- 16 进制：\x HexDigit HexDigit
 /\\x[0-9a-fA-F]{2}/g
 
@@ -292,6 +298,12 @@ encodeUTF8('irving壹א'); // \x69\x72\x76\x69\x6E\x67\xE5\xA3\xB9\xD7\x90
 
 
 ### 3.2 解答
+
+```javascript
+
+```
+
+
 
 ## 4. 工具
 
