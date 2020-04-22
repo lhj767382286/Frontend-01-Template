@@ -4,7 +4,50 @@ I love Java&nbsp;Script. I love Java&nbsp;Script. I love Java&nbsp;Script. I lov
 
 <span>/\u002a 1111*/</span>
 <script>
-    for(let i = 0 ; i < 128; i++) {
-        document.write(i + " <span style='background-color: lightgreen'>" + String.fromCharCode(i) + "</span></br>");
-    }
+  for (let i = 0; i < 128; i++) {
+    document.write(i + " <span style='background-color: lightgreen'>" + String.fromCharCode(i) + "</span></br>");
+  }
+</script>
+
+
+<script type="text/javascript">
+  const encodeUTF8 = (str) => {
+    return Array.prototype.map.call(str, (v) => {
+      // 获取当前字符码点
+      let codePoint = v.codePointAt(0);
+      if (codePoint <= 127) {
+
+        // 1. ASCII 范围 - 直接返回 16 进制
+        return '\\x' + codePoint.toString(16).toUpperCase();
+
+      } else if (codePoint <= 2047) {
+
+        // 2. 拉丁文等
+        // 获取当前字符码点的 11 位二进制数
+        let codePonit2Binary = codePoint.toString(2).padStart(11, '0');
+        let firstByte = '\\x' + parseInt(`110${codePonit2Binary.slice(0, 5)}`, 2).toString(16).toUpperCase();
+        let secondByte = '\\x' + parseInt(`10${codePonit2Binary.slice(5)}`, 2).toString(16).toUpperCase();
+        return firstByte + secondByte;
+
+      } else if (codePoint <= 65535) {
+
+        // 3. 除1，2外的 BMP
+        // 获取当前字符码点的 16 位二进制数
+        let codePonit2Binary = codePoint.toString(2).padStart(16, '0');
+        let firstByte = '\\x' + parseInt(`1110${codePonit2Binary.slice(0, 4)}`, 2).toString(16).toUpperCase();
+        let secondByte = '\\x' + parseInt(`10${codePonit2Binary.slice(4, 10)}`, 2).toString(16).toUpperCase();
+        let thirdByte = '\\x' + parseInt(`10${codePonit2Binary.slice(10)}`, 2).toString(16).toUpperCase();
+        return firstByte + secondByte + thirdByte;
+
+      } else {
+        throw new Error(`未支持字符：${v}`);
+      }
+    }).join('');
+  }
+
+  console.log(encodeUTF8('irvng'));
+  console.log(encodeUTF8('א'));
+  console.log(encodeUTF8('壹'));
+  console.log(encodeUTF8('irving壹א'));
+
 </script>

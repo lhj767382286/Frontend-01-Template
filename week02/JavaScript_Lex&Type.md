@@ -96,6 +96,8 @@
     * UTF-8 以字节为单位对 Unicode 进行编码
     * [UTF-16](https://baike.baidu.com/item/UTF-16) 以 16 位无符号整数为单位对 Unicode 进行编码
 
+> **UTF-8（8-bit Unicode Transformation Format）**: 用一至四个字节对Unicode字符集中的所有有效编码点进行编码，属于[Unicode](https://zh.wikipedia.org/wiki/Unicode)标准的一部分。
+
 #### 1.4.2 中文变量名
 
 ```javascript
