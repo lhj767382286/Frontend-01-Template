@@ -306,9 +306,3 @@ encodeUTF8('irving壹א'); // \x69\x72\x76\x69\x6E\x67\xE5\xA3\xB9\xD7\x90
 
 * [Regular expressions](https://regex101.com/r/1paXsy/1)
 * [正则符号](https://tool.oschina.net/uploads/apidocs/jquery/regexp.html)
-
-
-
-![image-20200418213039148](https://tva1.sinaimg.cn/large/007S8ZIlgy1gdy8suonbrj31fa0m8117.jpg)
-
-
