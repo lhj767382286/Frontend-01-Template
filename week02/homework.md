@@ -269,11 +269,14 @@ encodeUTF8('irving壹א'); // \x69\x72\x76\x69\x6E\x67\xE5\xA3\xB9\xD7\x90
 可以看出单双引号字符串的字面量其实类似，具体如下：
 
 ```javascript
-// <LS> / <PS>
-/\\u2028|\\u2029/g
-
 // unicode 字符
 /\\u[0-9a-fA-F]{4}/g
+
+// 除了 " \ \n \r
+/[^\'\n\\\r\\u2028\\u2029]/g
+  
+// <LS> / <PS>
+/\\u2028|\\u2029/g
 
 // 转义- 16 进制：\x HexDigit HexDigit
 /\\x[0-9a-fA-F]{2}/g
