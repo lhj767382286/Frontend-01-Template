@@ -552,6 +552,8 @@ new go();
 
 #### Special Object
 
+> ECMA 262 9.4
+
 * Array[[length]]
 * Object.prototype[[setPrototypeOf]]
 * ...
