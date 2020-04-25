@@ -354,27 +354,83 @@ UnicodeIDContinue ::
 #### 3.1.1 [IEEE 754 Double Float](https://github.com/camsong/blog/issues/9)
 
 * Sign(1)
+  * 符号位：0 代表正数，1 代表负数
 * Exponent (11)
+  * 指数位：用来表示次方数
 * Fraction (52)
+  * 尾数位，超出的部分自动进一舍零
 
 
+
+![](https://camo.githubusercontent.com/af8c1cdd9aedced18be47e40d27208b671b4a18d/687474703a2f2f617461322d696d672e636e2d68616e677a686f752e696d672d7075622e616c6979756e2d696e632e636f6d2f37323637613538623239383932633362373233653364366333663733393035612e706e67)
+
+![](https://user-images.githubusercontent.com/948896/31601625-1f199ad0-b220-11e7-9d46-bb48a470bedf.png)
 
 ```javascript
-// 模拟 float 在内存中的存储
-var a = 0.1;
-var b = 0.2;
+window.vm = new Vue({
+  el: '#app',
+  data: {
+    bits: Array(65).join(0).split("").map(v => Number(v)),
+    value: 0
+  },
+  watch: {
+    value(val){
+      const bytes = new Uint8Array(8);
+      const memory = new Float64Array(bytes.buffer);
+      memory[0] = (val);
+      console.log("******");
+      for(var i = 0; i < 8; i++) {
+        var byte = bytes[i]
+        console.log(byte);
+        for(var j = 0; j < 8; j ++) {
+            this.bits[(8 - i) * 8 - j - 1] = byte & 1;
+            byte = byte >> 1;
+        }
+      }
+    }
+  }
+})
+```
 
-const memory = new Float64Array(1);
-memory[0] = a;
 
-const intarr = new Uint8Array(memory.buffer);
 
-for (let i = 0; i < 8; i++) {
-	let s = (intarr[i].toString(2));
-  console.log(s.padStart(8, "0"));
+```html
+<div id="app">
+  <span v-for="v, i of bits">
+    <input :class="i > 0 ? i > 11 ? 'fraction' :'exponent':'sign' "  type="number" min=0 max=1 v-model="bits[i]"/>
+    <input v-if="i == 31" />
+    <br v-if="i == 31" />
+  </span>
+  <br />
+  <input style="width:5em;" v-model="value"/>
+</div>
+```
+
+
+
+```css
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
 }
-
-// console.log(intarr);
+.container input[type='number']{
+    -moz-appearance: textfield;
+}
+span {
+  padding:0;
+  margin:0;
+}
+input {
+  width:1em;
+  height:2em;
+  text-align:center;
+}
+.sign {
+  background-color: lightblue;
+} 
+.exponent {
+  background-color: orange;
+} 
 ```
 
 
@@ -606,6 +662,12 @@ function f() {
   console.log(null); // Unexpected token 'null'
 }
 ```
+
+
+
+### 3.5 Object
+
+
 
 
 

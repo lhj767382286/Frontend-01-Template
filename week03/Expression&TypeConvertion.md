@@ -30,11 +30,11 @@
 
 
 
-下面来看一下优先级最高的几个运算符：Member、New
+下面来看一下优先级最高的几个运算符：Member > New > Call.
 
 
 
-#### Member
+#### Member Expression
 
 > Member 运算，成员访问/属性访问。ECMA 262 P201
 
@@ -48,6 +48,37 @@
 * `super['b']`
 * `new.target`
 * `new Foo()`
+
+##### [Reference](https://juejin.im/post/5c7c7a7ce51d4553d7648192#heading-7)
+
+Member Expressions 实际返回的是一个 Reference 类型。
+
+* Reference 类型组成：
+  * Object
+  * Key
+* 目前有写的能力运算符：
+  * `delete` - 删除的是引用的地址
+  * `assign`
+
+```js
+var o = {x: 1};
+o.x + 2
+1 + 2
+// 实际 o.x + 2 与 1 + 2 没有任何区别
+
+// 但是下面两者就有很大的区别，这是因为有一个引用机制。实际 o.x 返回的是一个 Reference。
+// 而上面加法时会把 reference 自动解掉
+delete o.x
+delete 1
+
+// 可以认为 Reference，像指针，即能读也能写。有些运算符是有写的能力，有些只有读的能力
+class Reference {
+  constructor (object, property) {
+    this.object = object;
+    this.property = property;
+  }
+}
+```
 
 
 
@@ -114,15 +145,11 @@ Foo.apply(fakeObj);
 
 
 
-#### New
+#### New Expression
 
 * `new Foo`
 
 ```javascript
-// new
-new a();
-new new a();
-// 带括号的优先级更高
 function cls1(s){
   console.log(s)
 }
@@ -131,14 +158,14 @@ function cls2(s) {
   return cls1;
 }
 
+// 带括号的优先级更高
 new new cls2("good")
 
 // 2 good
-// undefined
 // cls1 {}
 ```
 
-#### Call
+#### Call Expression
 
 > 函数调用
 
@@ -152,48 +179,48 @@ new new cls2("good")
 
 ```javascript
 new a()['b']
+// 先 new 再取 member
 ```
 
 
 
-Member New Call 其实是为了让 New 更符合预期合理
+因此，Member、New以及Call 这三层的大部分的一些特殊处理都是为了处理 New 的运算的正确性，是为了让 New 更符合预期合理。
 
 
 
-#### Left Handside
+### Left Hand Side
 
-> 可以理解为 = 号左右边
+> Member、New、Call 三层又被称为 Left Hand Side. 可以理解为 = 号左右边。具体看后面 LHS 与 RHS。
 
-左值表达式：
+* 对于左值表达式：
+  * 极限现象就是 call
+* 运行时必须是 reference
 
-极限现象就是 call
+* 语法上必须是 left hand side
 
-运行时是个 reference
-
-语法上是个 left handside
-
-
-
-
-
-```
+```js
 a.b = c;
 a + b = c;
 ```
 
-#### Right Handside
+### Right Hand Side
 
-* Update
-  * a ++
-  * a --
-  * -- a
-  * ++ a
+> 优先级从高往下讲
+
+#### Update Expression
+
+> Todo: 理清 left-hand side expression
+
+* a ++
+* a --
+* -- a
+* ++ a
 
 
 
 ```javascript
-++ a ++
-++ (a++)
+++ a ++	// Invalid left-hand side expression in prefix operation
+++ (a++)	// Invalid left-hand side expression in prefix operation
 
 // P178 no LineTerminator  语法与词法特殊之处
 
@@ -204,7 +231,6 @@ a
 b
 ++
 c
-
 // a = 1, b = 2, c = 2
 
 a/*
@@ -212,23 +238,27 @@ a/*
 */++
 b/*
 */
-
 // a = 1, b = 3
 ```
 
 
 
+#### Unary Operators
 
+> 单目运算符
 
-* Unary 单目运算符
-  * Delete a.b
-  * void foo()
-  * typeof a
-  * `+ a`
-  * `- a`
-  * `~ a`
-  * `!a`
-  * `await a`
+* Delete a.b
+* void foo()
+  * 生成 `undefined` 最好的方式是 `void 0`
+  * 避免局部变量覆盖问题
+* typeof a
+  * `null` - `object`
+  * `function` - `function`
+* `+ a`
+* `- a`
+* `~ a`
+* `!a`
+* `await a`
 
 
 
@@ -243,44 +273,99 @@ function(var i = 0; i < 10; i++) {
     button.onClick = function () {
       console.log(i)
     }(i);
-  }
+  }(i);
 }
 
-// 加 void，
-// 语义正确
-// 如果前面忘记写分号，用"("会有问题
+// 加 void 是比较好的实践：
+// 1. 语义正确
+// 2. 如果前面忘记写分号，用"("会有问题
 ```
 
 
 
-* Exponental
-  * `**` 
+#### Exponental Operators
+
+* `**` 
 
 ```
 唯一一个右结合的运算符
 ```
 
+#### Multiplicative Operators
+
+* `*`
+* `/`
+* `%`
+
+#### Additive Operators
+
+* `+ `
+* `-`
+
+####  Shift Operators
+
+* `<<`
+* `>>`
+* `>>>`
 
 
-* Multiplicative
-  * `* / %`
-* Additive
-  * `+ -`
-* `Shift`
-  * ``
+
+#### Relational Operators
+
+* `<`
+* `>`
+* `<=`
+* `>=`
+* `instanceof`
+* `in`
+
+#### Equality Operators
+
+* `==`
+* `!=`
+* `===`
+* `!==`
+
+#### Bitwise Operatiors
+
+* `&`
+* `^`
+* `|`
+
+#### Logical Operators
+
+* `&&`
+* `||`
+
+```js
+function foo1(){
+  console.log(1);
+  return false;
+}
+
+function foo2() {
+  console.log(2)
+}
+
+foo1() || foo2()	// 1, 2
+foo1() && foo2()	// 1
+
+// 实际情况：不是先把 foo1, foo2 结果计算出来才执行操作符运算
+// 所以可以把逻辑操作符当作 if / else 使用
+```
 
 
 
-````
-逻辑运算 -> 短路逻辑
+#### Conditional Operator
 
+	* `?:`
 
-?:
+```js
+// js 中三目运算，同样也是短路逻辑。与其他语言不同(C++ 没有短路逻辑)
 
-,
-
-=> 
-````
+true ? foo1() : foo2()
+false ? foo1() : foo2()
+```
 
 
 
@@ -312,24 +397,6 @@ foo(2)	// RHS (目的是获取 foo 的值)
 
 
 
-## Reference
-
-delete删除的是引用的地址
-
-- Object
-- Key
-
-
-
-```javascript
-delete
-assign
-```
-
-
-
-
-
 ```
 var obj2 = {   [Symbol.toPrimitive](hint) {     if (hint == "number") {       return 10;     }     if (hint == "string") {       return "hello";     }     return true;   } }; console.log(+obj2);     // 10      -- hint 参数值是 "number" console.log(`${obj2}`); // "hello" -- hint 参数值是 "string" console.log(obj2 + ""); // "true"  -- hint 参数值是 "default"
 ```
@@ -340,7 +407,7 @@ var obj2 = {   [Symbol.toPrimitive](hint) {     if (hint == "number") {       re
 
 
 
-
+https://tc39.es/ecma262/#prod-PrimaryExpression
 
 
 
