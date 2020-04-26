@@ -2,8 +2,6 @@
 
 # Statement
 
-> 周爱民老师的课
-
 ## Grammer
 
 ### 简单语句
@@ -381,7 +379,7 @@ foo();
 
 ### [Completion Record](https://juejin.im/post/5c7c7a7ce51d4553d7648192)
 
-> Completion Record 类型用来解释值和控制流的运行时传播。ECMAScript规范中的每个运行时语义都显式或隐式返回一个报告其结果的完成Completion Record。
+> Completion Record 类型用来解释值和控制流的运行时传播。ECMAScript 规范中的每个运行时语义都显式或隐式返回一个报告其结果的完成 Completion Record。
 
 * [[type]]: normal, break, continue, return, or throw
 * [[value]]: Types
