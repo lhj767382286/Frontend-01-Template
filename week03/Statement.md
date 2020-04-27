@@ -1,6 +1,6 @@
-
-
 # Statement
+
+[TOC]
 
 ## Grammer
 
@@ -31,6 +31,31 @@ break labe2;
 
 return;
 ```
+
+
+
+#### Completion Record
+
+> 每个语句运行时返回的 Completion Record.
+
+* ExpressionStatement
+  * `Completion{[[Type]]: normal, [[Value]]: GetValue(exprRef), [[Target]]: empty}`
+* EmptyStatement
+  * `Completion{[[Type]]: normal, [[Value]]: empty, [[Target]]: empty}`
+* DebuggerStatement
+  * 若调试状态：预先定义的 Completion 值
+  * 否则，`Completion{[[Type]]: normal, [[Value]]: empty, [[Target]]: empty}`
+* ThrowStatement
+  * ` Completion{[[Type]]: throw, [[Value]]: GetValue(exprRef), [[Target]]: empty}`
+* ContinueStatement
+  * 无 Identifier：`Completion{[[Type]]: continue, [[Value]]: GetValue(exprRef), [[Target]]: Identifier}`
+  * 有 Identifier：`Completion{[[Type]]: continue, [[Value]]: GetValue(exprRef), [[Target]]: empty}`
+* BreakStatement
+  * 无 Identifier：`Completion{ [[Type]]: break, [[Value]]: empty, [[Target]]: empty }`
+  * 有 Identifier：`Completion{ [[Type]]: break, [[Value]]: empty, [[Target]]: Identifier }`
+* ReturnStatement
+  * 是 async：`Completion{ [[Type]]: return, [[Value]]: Await(GetValue(exprRef)), [[Target]]: empty }`
+  * 不是 async：`Completion{ [[Type]]: return, [[Value]]: GetValue(exprRef), [[Target]]: empty }`
 
 
 
@@ -68,9 +93,10 @@ return;
 
 ##### Completion Record
 
-* [[type]]: normal
-* [[value]]: --
-* [[traget]]: --
+* `{}`
+  * `NormalCompletion(empty)`
+* `{ statementList }`
+  * 参考下方代码注释
 
 ```js
 {
@@ -185,7 +211,7 @@ try {
 
 ##### Completion Record
 
-* [[type]]: break continue
+* [[type]]: break/continue
 * [[value]]: --
 * **[[target]]: label**
 
@@ -202,6 +228,21 @@ try {
 * VariableStatement
 * ClassDeclaration
 * LexicalDeclaration
+
+
+
+#### 关键字
+
+* function
+* function *
+* Async function
+* Async function
+* var
+* class
+* const 
+* let
+
+
 
 #### FunctionDeclaration
 
@@ -346,65 +387,97 @@ foo();
 
 #### 其他
 
-##### 声明
-
-* function
-* function *
-* Async function
-* Async function
-* var
-* class
-* const 
-* let
-
-
-
 ##### 预处理
 
 ```js
 //  预处理 P250 13.3.1.2 Static Semantics: BoundNames
+var a = 2;
+void function () {
+  a = 1;
+  return;
+  var a;
+}();
+console.log(a); // 2
 
+var a = 2;
+void function () {
+  a = 1;
+  return;
+  const a;
+}();
+console.log(a); //  SyntaxError: Missing initializer in const declaration
+```
+
+##### 作用域
+
+```js
+var a = 2;
+void function () {
+  a = 1;
+ {
+   var a;
+ }
+}();
+console.log(a);	// 2
+
+var a = 2;
+void function () {
+  a = 1;
+ {
+   let a;
+ }
+}();
+console.log(a);	// 1
 ```
 
 
 
 ## Runtime
 
-> 相比于之前说的 7 种语言类型。运行时实际上还存在着另外 8 种规范类型，用于解释不同的阶段。如下面两种
-
-* Completion Record
-  * 用于描述异常、跳出等语句执行过程
-* Lexical Environment
-  *  用于描述变量和作用域
+> 相比于之前说的 7 种语言类型。运行时实际上还存在着另外 8 种规范类型，用于解释不同的阶段。如下面要讲到的 Completion Record，用于描述异常、跳出等语句执行过程。
 
 ### [Completion Record](https://juejin.im/post/5c7c7a7ce51d4553d7648192)
 
-> Completion Record 类型用来解释值和控制流的运行时传播。ECMAScript 规范中的每个运行时语义都显式或隐式返回一个报告其结果的完成 Completion Record。
+> Completion Record 类型用来解释值和控制流的运行时传播情况，如执行相关的控制转移语句(continue、break、return、throw)。ECMAScript 规范中的每个运行时语义都显式或隐式返回一个报告其结果的 Completion Record。
 
-* [[type]]: normal, break, continue, return, or throw
-* [[value]]: Types
-  * 只有 return, throw 使用这个 value
-* [[target]]: label
+
+
+#### Fields
+
+* [[Type]]: 
+  * 取值：One of normal, break, continue, return, or throw
+* [[Value]]: 
+  * 取值：任何语言类型 / empty
+  * 只有当 type 为 return, throw 时才有意义
+* [[Target]]: 
+  * 取值：string / empty (实际上是一个 label)
   * 为了循环和 break, continue 存在
   * 只有循环和 switch 语句才能消费
 
 ```js
 Completion Record = {
-  [[type]] // Completion的类型，有 normal, break, continue, return, throw 5种类型
-  [[value]] // 返回的值为ES语言值或空，仅当当[[type]] 为 normal,return, throw时有值
-  [[target]] // 定向控制转移的目标label，为string或空，仅当[[type]] 为break, continue时有值
+  [[Type]] // Completion的类型，有 normal, break, continue, return, throw 5种类型
+  [[Value]] // 返回的值为ES语言值或空，仅当当[[type]] 为 normal,return, throw时有值
+  [[Target]] // 定向控制转移的目标label，为string或空，仅当[[type]] 为break, continue时有值
 }
 ```
 
 
 
+#### 类型
 
+* 当 [[Type]] 取值为 normal 时：**Normal completion**
+* 当 [[Type]] 取其余值时：**Abrupt completion**
+
+
+
+#### Abstract Operation
+
+> 具体需结合语句分析，可参考：https://www.w3cschool.cn/wsqzg/wsqzg-5nup25oz.html 或 ECMA 262 标准
 
 ## Object
 
-> 建议参考重学前端，极客时间
-
-
+> 建议参考极客时间- 重学前端
 
 ### 什么是面向对象
 
@@ -414,25 +487,21 @@ Completion Record = {
 2. 人的智力可以理解的东西
 3. 可以知道思考和行动（进行想象或施加动作）的东西
 
-![image-20200425210521728](https://tva1.sinaimg.cn/large/007S8ZIlgy1ge6ber1x5yj30w00fi76w.jpg)
-
 
 
 ### 对象的本质特征
 
-* 对象具有 **唯一标志性**
+> 所有任何一个对象都是唯一的，这与它本身状态无关。
+
+* 对象具有 **唯一标志性** - identifier
   * 即使是看起来完全相同的对象，也并非同一个对象
   * 通过内存地址来体现
-* 对象具有 **状态**
+* 对象具有 **状态** - state
   * 我们使用状态来描述对象
   * 同一个对象可能处于不同状态之下
-* 对象具有 **行为**
+* 对象具有 **行为** - behavior
   * 状态的改变即是行为
   * 即：对象的状态可能会因为行为产生变迁
-
-
-
-![image-20200425211050353](https://tva1.sinaimg.cn/large/007S8ZIlgy1ge6bkeenzcj30j80hkdjd.jpg)
 
 > 封装、复用、解耦、内聚其实是架构上的概念。
 
@@ -448,25 +517,27 @@ Completion Record = {
   * 产生重叠，即多继承结构
   * 代表语言：C++
 * 分类
-  * 单继承结构，会有最终的基类，如：Object。
+  * 单继承结构，会有最终的基类：Object。
   * 产生了 Interface
   * 代表语言：Java
 
-![image-20200425211816904](https://tva1.sinaimg.cn/large/007S8ZIlgy1ge6bs601bkj31ga0sadqg.jpg)
 
-Mixin: 复用
+
+![image-20200427164128113](https://tva1.sinaimg.cn/large/007S8ZIlgy1ge8f0r3necj30kp0cawf4.jpg)
+
+
+
+> Mixin: 复用
 
 
 
 ### Object-Prototype
 
-> 原型是一种更接近人类原始认知的描述对象的方法。基于原型
+* 原型是一种更接近人类原始认知的描述对象的方法
+* 我们并不试图做严谨的分类，而是采用“相似”这样的方式去描述对象。
+* 任何对象仅仅需要描述它自己与原型的区别即可
 
-我们并不试图做严谨的分类，而是采用“相似”这样的方式去描述对象。
-
-任何对象仅仅需要描述它自己与原型的区别即可。
-
-![image-20200425212424772](https://tva1.sinaimg.cn/large/007S8ZIlgy1ge6byjy3u2j31dy0ruk3b.jpg)
+![image-20200427164152729](https://tva1.sinaimg.cn/large/007S8ZIlgy1ge8f15evkjj30it0cvq47.jpg)
 
 ### Object Exercise
 
@@ -474,6 +545,10 @@ Mixin: 复用
 * “咬”这个行为该如何使用对象
 
 
+
+我们不应该受语言描述的干扰。
+
+在设计对象的状态和行为时，我们总是需要遵循“行为改变状态”的原则。
 
 ```js
 // 错误。应该是狗急了。方法应该是改变自身的状态
@@ -491,59 +566,97 @@ class Human {
 }
 ```
 
-我们不应该受语言描述的干扰。
 
-在设计对象的状态和行为时，我们总是需要遵循“行为改变状态”的原则。
-
-如何抽象？
 
 
 
 ### Object In JavaScript
 
-> JavaScript 的对象模型。原型 不等于 属性。属性都属于运行时
+> 注意：原型不是属性。属性都属于运行时
 
-![image-20200425213640170](https://tva1.sinaimg.cn/large/007S8ZIlgy1ge6cbabhmtj31b40n8tg9.jpg)
+* 在 JS 运行时，原生对象的描述方式非常简单，我们只需要关心原型和属性的两个部分
 
-#### 属性
 
-> Key Val 对。运行时其实没有方法这个概念，都是属性
 
-* Data Property
-* Acessor Property
+![image-20200427164746870](https://tva1.sinaimg.cn/large/007S8ZIlgy1ge8f7aic0yj30ai08mt8u.jpg)
 
-![image-20200425213757637](https://tva1.sinaimg.cn/large/007S8ZIlgy1ge6ccmixtvj310s0hodi4.jpg)
+#### Property
 
-![image-20200425213851039](https://tva1.sinaimg.cn/large/007S8ZIlgy1ge6cdl1o0hj31880l67eg.jpg)
+* JavaScript 用属性来统一抽象对象的状态和行为
+  * 运行时其实没有方法这个概念，只有属性
+* 属性分为两类：
+  * Data Property - 数据属性
+    * 用于描述状态
+    * 注意：数据属性中，如果存储函数，也可以用于描述行为。
+  * Acessor Property - 访问器属性
+    * 用于描述行为
 
-![image-20200425214342526](https://tva1.sinaimg.cn/large/007S8ZIlgy1ge6cioevjfj313u0ngn4y.jpg)
+
+
+![image-20200427165049158](https://tva1.sinaimg.cn/large/007S8ZIlgy1ge8faghs2zj30ak089q36.jpg)
+
+##### 原型链
+
+属性访问算法：
+
+* 流程：
+  * 当我们访问属性时，如果当前对象没有
+  * 则会沿着原型着原型对象是否有次名称的属性
+  * 而原型对象还可能有原型，因此存在“原型链”
+* 这个算法保证了：每个对象只需要描述自己和原型的区别即可
+
+
+
+![image-20200427165836807](https://tva1.sinaimg.cn/large/007S8ZIlgy1ge8fikeavwj306j09n0sr.jpg)
+
+
 
 #### Object API/ Grammer
+
+> 需要掌握 1, 2, 3
 
 * 基本 API：`{} . [] Object.defineProperty`
 * 原型 API：`Object.create / Object.setPrototypeOf / Object.getPropertyOf`
 * `new / class / extends`
 * `new / function / prototype`
 
-![image-20200425214514804](https://tva1.sinaimg.cn/large/007S8ZIlgy1ge6ck793h9j31ee0n011z.jpg)
 
 
+#### [Function Object](https://tc39.es/ecma262/#sec-ecmascript-function-objects)
 
-#### Function Object
+> JavaScript 中特殊的对象，函数对象。即，带有 `[[call]]` 就是函数，带有 `[[constructor]]` 就是构造器
 
-![image-20200425215136679](https://tva1.sinaimg.cn/large/007S8ZIlgy1ge6cquagyzj31cq0lw141.jpg)
+函数对象具有：
+
+* 一般对象的属性和原型
+
+* **一个行为 [[[call](https://tc39.es/ecma262/#sec-ecmascript-function-objects-call-thisargument-argumentslist)]]**
+
+  * 使用 Function 关键字、箭头运算符、Function 构造器创建的对象，都会有 `[[call]]` 这个行为
+
+  * 当使用类似 `f()` 语法把对象当成函数调用时，会访问 `[[call]]` 这个行为
+
+  * 如果对象没有  `[[call]]` 行为，则会报错
+
+    
+
+![image-20200427170549626](https://tva1.sinaimg.cn/large/007S8ZIlgy1ge8fq2rkgkj304i02pt8j.jpg)
+
+
 
 > 行为。类似的还有：`Number()` 和 `new Number()`、`Date()` 和 `new Date()`
 
 ```js
+Date(); // "Mon Apr 27 2020 17:29:21 GMT+0800 (中国标准时间)"
+new Date(); // {}
+
+// 建议：所有需要 new 的方法，都用 class 声明
 function go() {
   console.log(this);
   return {a:1};
 }
-go();
-new go();
-
-// 建议：所有需要 new 的方法，都用 class 声明
+go();	// Window
+new go();	// {a: 1}
 ```
 
 
@@ -559,22 +672,54 @@ new go();
 
 
 ```js
+// 如 Array
+
 var arr = [];
 arr[100] = 1;
 arr.length; // 101
 
-Object.getOwnPropertyDescriptor(o, "length");
+Object.getOwnPropertyDescriptor(arr, "length");
 // {value: 101, writable: true ..}
 
 Object.setPrototypeOf(Object.prototype, {a:1});
-// 抛错误
+// 抛错误， Object 万物之始
 
 
-// 归根到底 => 运行时
+// 归根到底 => 运行时和对象
 ```
 
 
 
+#### [Host Object](https://www.w3cschool.cn/wsqzg/wsqzg-4lx125lf.html)
+
+> 宿主对象
+
+JS 对象：
+
+* 宿主对象（host Objects）
+  * 由 JavaScript 宿主环境提供的对象，它们的行为完全由宿主环境决定
+* 内置对象（Built-in Objects）
+  * 固有对象（Intrinsic Objects ）：由标准规定，随着 JavaScript 运行时创建而自动创建的对象实例。
+  * 原生对象（Native Objects）：可以由用户通过 Array、RegExp 等内置构造器或者特殊语法创建的对象。
+  * 普通对象（Ordinary Objects）：由 `{}`语法、Object 构造器或者 class 关键字定义类创建的对象，它能够被原型继承。
 
 
-cnblogs.com/benbenalin/category/1005679.html
+
+宿主：浏览器中的 window、 window 又有许多属性。
+
+对于 window 的属性：
+
+* 一部分来自 JavaScript 语言：规定了全局对象属性
+* 一部分来自浏览器环境：W3C 各种标准规定的 Window 对象的其它属性。
+
+宿主对象也分为固有的和用户可创建的两种：
+
+* 比如 document.createElement 就可以创建一些 DOM 对象
+
+宿主也会提供一些构造器，比如我们可以使用 new Image 来创建 img 元素
+
+
+
+## 总结
+
+![Statement](https://tva1.sinaimg.cn/large/007S8ZIlgy1ge8n7hs95xj30u0175x05.jpg)
