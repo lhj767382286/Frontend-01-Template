@@ -626,6 +626,11 @@ class Human {
 
 > JavaScript 中特殊的对象，函数对象。即，带有 `[[call]]` 就是函数，带有 `[[constructor]]` 就是构造器
 
+* 函数对象的定义是：
+  * 具有 [[call]] 私有字段的对象
+* 构造器对象的定义是：
+  * 具有私有字段 [[construct]] 的对象
+
 函数对象具有：
 
 * 一般对象的属性和原型
@@ -702,6 +707,15 @@ JS 对象：
   * 固有对象（Intrinsic Objects ）：由标准规定，随着 JavaScript 运行时创建而自动创建的对象实例。
   * 原生对象（Native Objects）：可以由用户通过 Array、RegExp 等内置构造器或者特殊语法创建的对象。
   * 普通对象（Ordinary Objects）：由 `{}`语法、Object 构造器或者 class 关键字定义类创建的对象，它能够被原型继承。
+* 特殊行为的对象：
+  * 在固有对象和原生对象中，有一些对象的行为跟正常对象有很大区别:
+    * Array
+    * Object.prototype
+    * String
+    * Arguments
+    * namespace
+    * 类型数组与缓冲数组
+    * bind 后的 function
 
 
 
