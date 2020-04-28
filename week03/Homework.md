@@ -53,7 +53,44 @@
 > Array Exotic Objects
 
 * 每个 Array 对象都有一个 length 属性
-* length 属性根据最大的下标自动发生变化，其值始终是小于 2^32 的非负整数
+* length 属性根据最大的下标自动发生变化，其值始终是小于 2^32 的非负整数（即：`+0 ≤ array_index < 2^32 - 1`）
+* Array Object 区别于 Ordinary Object 的地方：
+  * 重写了内部方法 - [[DefineOwnProperty(P, Desc)]](https://tc39.es/ecma262/#sec-array-exotic-objects-defineownproperty-p-desc)
+  * 新增了内部方法
+    * [ArrayCreate(length, [, proto])](https://tc39.es/ecma262/#sec-arraycreate)
+    * [ArraySpeciesCreate(originalArray, length)](https://tc39.es/ecma262/#sec-arrayspeciescreate)
+    * [ArraySetLength(A, Desc)](https://tc39.es/ecma262/#sec-arraysetlength)
+
+下面主要看看一下 **`[[DefineOwnProperty]](P, Desc)`** （P 是属性名, Desc 是属性描述符，A 是 array object）的处理步骤：
+
+1. P 是 "length"
+   1. Return ArraySetLength(A, Desc)
+2. P 是 array index:
+   1. 获取 A 的 length 属性：`oldLenDesc = OridinaryGetOwnProperty(A, "length")`
+   2. 获取 A 的 length 属性的值: `oldLen = oldLenDesc.[[Value]]`
+   3. 将 P 转换成 Number 并用 index 存储：`index = toUnit32(P)`
+   4.  比较 index 与 oldLen 大小
+      1. index >= oldLen
+         1. Length 属性不可写: return false
+         2. Length 属性可写：
+            1. 改写数组 index 的值：`OridinaryDefinedOwnProperty(A, P, Desc)`
+            2. 改写 oldLenDesc ：`oldLenDesc.[[Value]] = index + 1`
+            3. 改写 Length 属性：`OridinaryDefinedOwnProperty(A, "length", oldLenDesc)`
+            4. 返回：true 
+3. P 既不是 length 也不是 array index:
+   1. 返回：` OrdinaryDefineOwnProperty(A, P, Desc)`
+
+
+
+参考说明：
+
+| 所用到内部方法                                               | 作用             | 示例                                                         |
+| ------------------------------------------------------------ | ---------------- | ------------------------------------------------------------ |
+| [OridinaryGetOwnProperty](https://tc39.es/ecma262/#sec-ordinarygetownproperty) | 获取对象的属性   | 如数据属性：`{value: 1, writable: true, enumerable: true, configurable: true}` |
+| [toUnit32](https://tc39.es/ecma262/#sec-touint32)            | 将 P 转成 Number |                                                              |
+| [OridinaryDefinedOwnProperty](https://tc39.es/ecma262/#sec-ordinarydefineownproperty) | 改写对象属性     |                                                              |
+
+
 
 
 
@@ -90,7 +127,48 @@ Object.setPrototypeOf(Object.prototype, null)
 
 
 
+#### [String](https://tc39.es/ecma262/#sec-string-exotic-objects)
 
+> String Exotic Objects
+
+* 每个 String 对象都有一个 length 属性
+  * length 的值等于单值（code unit elements）的数量
+  * 此外，实现了虚拟整数索引与字符串中的每个单值（code unit elements）一一对应
+* String Object 区别于 Ordinary Object 的地方：
+  * 重写了内部方法
+    * [GetOwnProperty(P)](https://tc39.es/ecma262/#sec-string-exotic-objects-getownproperty-p) - StringGetOwnProperty ( S, P )
+    * [DefineOwnProperty(P, Desc)](https://tc39.es/ecma262/#sec-string-exotic-objects-defineownproperty-p-desc)
+    * [OwnPropertyKeys](https://tc39.es/ecma262/#sec-string-exotic-objects-ownpropertykeys)
+  * 新增了内部方法
+    * [StringCreate(value,  prototype)](https://tc39.es/ecma262/#sec-stringcreate)
+  * 新增了内部插槽(interal slot)
+    * [[StringData]]
+
+```js
+Object.getOwnPropertyDescriptors("ab");
+
+{
+  0: {value: "a", writable: false, enumerable: true, configurable: false},
+  1: {value: "b", writable: false, enumerable: true, configurable: false},
+  length: {value: 2, writable: false, enumerable: false, configurable: false}
+}
+
+"ab"[0]	// "b"
+"ab"[2] // undefined
+
+// StringGetOwnProperty(S, P) 执行步骤大概如下；
+// 1. 如果 P 不是字符串，返回：undefined
+// 2. 获取 P 转为 Number 的数值并存为 index（具体参考 canonicalNumberIndexString: https://tc39.es/ecma262/#sec-canonicalnumericindexstring）
+// 3. 如果 index === undefined，返回：undefined
+// 4. 如果 IsInteger(index) === false, 返回：undefined
+// 5. 如果 index === -0, 返回 undefined
+
+// 6. 获取 S 对象的 [[StringData]] 内容，存为： str
+// 7. len = str.length
+// 8. 如果 index < 0 || len <= index，返回：undefined
+// 9. resultStr = {length:1, 0: {value: str[index]}}
+// 10. 返回：{[[Value]]: resultStr, ...}
+```
 
 
 
