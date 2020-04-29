@@ -1,12 +1,67 @@
-
-
 # 作业
 
 [TOC]
 
 ## 1. convertStringToNumber
 
+
+
+```js
+function convertStringToNumber(string, radix = 10) {
+  if (radix > 10) {
+    return;
+  }
+  let flag = /e|E/.test(string);
+  if (!flag) {
+    let chars = string.split('');
+    let number = 0;
+    let i = 0;
+    while (i < chars.length && chars[i] != '.') {
+      number = number * radix;
+      number += chars[i].codePointAt(0) - '0'.codePointAt(0);
+      i++;
+    }
+    if (chars[i] === '.') {
+      i++;
+    }
+    let fraction = 1;
+    while (i < chars.length) {
+      fraction /= radix;
+      number += (chars[i].codePointAt(0) - '0'.codePointAt(0)) * fraction;
+      i++;
+    }
+    return number;
+  } else {
+    let logNumber = Number(string.match(/\d+$/)[0]);
+    let number = string.match(/^[\d\.]+/)[0].replace(/\./, '');
+    if (/e-|E-/.test(string)) {
+      return Number(number.padEnd(logNumber + 1, 0));
+    } else {
+      return Number(number.padStart(logNumber + number.length, 0).replace(/^0/, '0.'));
+    }
+  }
+}
+```
+
+
+
 ## 2. convertNumberToString
+
+```js
+function convertNumberToString(number, radix) {
+  let integer = Math.floor(number);
+  let fraction = String(number).match(/\.\d+$/);
+  if (fraction) {
+    fraction = fraction[0].replace('.', '');
+  }
+  let string = '';
+  while (integer > 0) {
+    string = String(integer % radix) + string;
+    integer = Math.floor(integer / radix);
+  }
+  return fraction ? `${string}.${fraction}` : string;
+}
+```
 
 
 
@@ -172,18 +227,59 @@ Object.getOwnPropertyDescriptors("ab");
 
 
 
+#### [Arguments](https://tc39.es/ecma262/#sec-arguments-exotic-objects)
+
+> Arguments Exotic Objects
+
+* 非负整数型下标属性跟对应的变量联动
+* Arguments Object 区别于 Ordinary Object 的地方：
+  * 新增了内部插槽 
+    * [[ParamterMap]]
+  * 重写了内部方法
+    * GetOwnProperty(P)
+    * DefineOwnPropery(P, Desc)
+    * Get(P, Receiver)
+    * Set(P, V, Receiver)
+    * Delete(P)
+
+> 关于  Arguments 对象的创建过程，可以参考：[ES5/可执行代码与执行环境 - Arguments 对象的创建]([https://www.w3.org/html/ig/zh/wiki/ES5/%E5%8F%AF%E6%89%A7%E8%A1%8C%E4%BB%A3%E7%A0%81%E4%B8%8E%E6%89%A7%E8%A1%8C%E7%8E%AF%E5%A2%83#.E5.88.9B.E5.BB.BA_Arguments_.E5.AF.B9.E8.B1.A1](https://www.w3.org/html/ig/zh/wiki/ES5/可执行代码与执行环境#.E5.88.9B.E5.BB.BA_Arguments_.E5.AF.B9.E8.B1.A1))
+
+
+
+#### [Namespace](https://tc39.es/ecma262/#sec-module-namespace-exotic-objects)
+
+* 与一般对象完全不一样
+* 内部方法大部分被重写
+* 比较重要的地方，内部插槽：
+  * [[Moudle]] - 看作引入的模块
+  * [[Exports]] - 看作导出的模块
+
+
+
+### 解答
+
+* Array：
+  * [[length]] 
+  * length 属性根据最大的下标自动发生变化
+* Object.prototype:
+  *  [[setPrototypeOf]]
+  *  Object.prototype 作为所有正常对象的默认原型，不能再给它设置原型
+* String: 为了支持下标运算，String 的正整数属性访问会去字符串里查找
+* Arguments: arguments 的非负整数型下标属性跟对应的变量联动
+* 模块的 namespace 对象：特殊的地方非常多，跟一般对象完全不一样，尽量只用于 import 吧
+* 类型数组和数组缓冲区：跟内存块相关联，下标运算比较特殊
+* bind 后的 function：跟原来的函数相关联
+
+
+
+
+
 
 
 
 
 https://tc39.es/ecma262/#sec-set-immutable-prototype
 
-
-
-
-
-
-
-
+https://github.com/xiayuegit/Frontend-01-Template/blob/master/week03/homework.md
 
 ![]（https://tva1.sinaimg.cn/large/007S8ZIlgy1ge426uul3aj30vy0dgdmd.jpg)
