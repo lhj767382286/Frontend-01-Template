@@ -280,6 +280,6 @@ Object.getOwnPropertyDescriptors("ab");
 
 https://tc39.es/ecma262/#sec-set-immutable-prototype
 
-https://github.com/xiayuegit/Frontend-01-Template/blob/master/week03/homework.md
+
 
 ![]（https://tva1.sinaimg.cn/large/007S8ZIlgy1ge426uul3aj30vy0dgdmd.jpg)
