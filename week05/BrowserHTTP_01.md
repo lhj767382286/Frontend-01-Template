@@ -37,7 +37,7 @@
   * [libnet](https://baike.baidu.com/item/libnet/1589792?fr=aladdin) - 构造 IP 包库
   * [Libpcap](https://baike.baidu.com/item/libpcap) - 抓包
 
-## HTTP 协议
+## [HTTP 协议](https://tools.ietf.org/html/rfc2616)
 
 > 在 TCP 的基础上规定了一个 Request、Response 模型，一定是一问一答，而且是先问后答。而 TCP 则是全双工通道（服务端、客户端都可主动发消息，只保证消息的顺序及消息的触达情况，没法规定对消息必须有应答行为）。对于 HTTP，服务端无法主动发 Response，只有收到 Request，才能 Response。这个模式很好的满足了大部分应用的需要。
 
