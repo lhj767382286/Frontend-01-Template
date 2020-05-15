@@ -66,7 +66,7 @@
 // CR = '\r'; Carriage-Return 回车
 // LF = '\n'; Line-Feed 换行
 
-`${Method} ${SP} ${Request-URI} ${SP} ${HTTP-Version} ${CRLF}`
+Method SP Request-URI SP HTTP-Version CRLF
 
 POST / HTTP/1.1
 ```
@@ -144,12 +144,88 @@ name=XXX&pwd=XXXX
 
 > 状态行，由一个HTTP版本，空格后，一个状态码，再空格，一个状态码的文本描述，最后一个回车换行构成。
 
+```js
+HTTP-Version SP Status-Code SP Reason-Phrase CRLF
+```
+
+##### Status-Code And Reason-Pharse
+
+```
+// 指示信息 - 表示请求已接收，继续处理
+100 - Continue
+101 - Switching Protocols
+
+// 成功 - 表示请求已被成功接收、理解、接受
+200 - OK
+201 - Created
+202 - Accepted
+203 - Non-Authoritative Information
+204 - No Content
+205 - Reset Content
+206 - Partial Content
+
+// 重定向 - 要完成请求必须进行更进一步的操作
+300 - Multiple Choices
+301 - Moved Permanently
+302 - Found
+303 - See Other
+304 - Not Modified
+305 - Use Proxy
+307 - Temporary Redirect
+
+// 客户端错误 - 请求有语法错误或请求无法实现
+400 - Bad Request
+401 - Unauthorized
+402 - Payment Required
+403 - Forbidden
+404 - Not Found
+405 - Method Not Allowed
+406 - Not Acceptable
+407 - Proxy Authentication Required
+408 - Request Time-out
+409 - Conflict
+410 - Gone
+411 - Length Required
+412 - Precondition Failed
+413 - Request Entity Too Large
+414 - Request-URI Too Large
+415 - Unsupported Media Type
+416 - Requested range not satisfiable
+417 - Expectation Failed
+
+// 服务器端错误 - 服务器未能实现合法的请求
+500 - Internal Server Erro
+501 - Not Implemented
+502 - Bad Gateway
+503 - Service Unavailable
+504 - Gateway Time-out
+505 - HTTP Version not supported
+```
 
 
-chunk，单独一行表示后面有多少个字符
+
+#### headers
+
+* Transfer-Encoding
+  * chunked
+    * 数据以一系列分块的形式进行发送
+    * Content-Length 在这种情况下不被发送
+    * **在每一个分块的开头需要添加当前分块的长度，以 16 进制表示**
+  * compress
+    * 采用 LZW 压缩算法
+  * deflate
+    * 采用 zlib 结构
+  * gzip
+    * 使用 lZ77 压缩算法
+  * identify
+    * 指代自身（未经压缩和修改）
+
+![](data:image/png;base64,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)
 
 
 
 
 
 https://www.cnblogs.com/zrtqsk/p/3746891.html
+
+https://zhuanlan.zhihu.com/p/38548737
