@@ -112,6 +112,9 @@ class ResponseParser {
         this.headers = {};
         this.headerName = "";
         this.headerValue = "";
+
+        // 根据 Transfer-Encoding 创建
+        this.bodyParser = null;
     }
 
     receive(string) {
@@ -135,6 +138,8 @@ class ResponseParser {
                 this.current = this.WAITING_HEADER_SPACE;
             } else if (char === '\r') {
                 this.current = this.WAITING_BODY;
+                // if (this.headers)
+                this.bodyParser = new TrunkedBodyParser();
             } else {
                 this.headerName += char;
             }
