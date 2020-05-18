@@ -11,7 +11,7 @@
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}/week05/homework/test.js"
+            "program": "${workspaceFolder}/week06/codes/状态机/match-4.js"
         }
     ]
 }

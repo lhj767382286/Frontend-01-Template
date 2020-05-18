@@ -1,32 +1,165 @@
-![image-20200514210330040](https://tva1.sinaimg.cn/large/007S8ZIlgy1gesa4ltfixj30d207341c.jpg)
+# HTML 的解析
 
-this.length *= 16;
-                this.length += parseInt(char, 16);
+## 浏览器
 
-
-
+![image-20200511231602994](https://tva1.sinaimg.cn/large/007S8ZIlgy1geox3lony2j31z80gu41t.jpg)
 
 
-* 拆分文件
-* 创建状态机
-  * html 词法 - 查看链接
-  * 直接写出状态机
-* 解析标签
-  * 标准是 80 个状态
-  * 基本10+
-* 创建元素
-* 处理属性
 
-![image-20200514210826859](https://tva1.sinaimg.cn/large/007S8ZIlgy1gesa9rdk3zj312m0ea7bg.jpg)
+## 步骤
 
-![image-20200514210846814](https://tva1.sinaimg.cn/large/007S8ZIlgy1gesaa4vi5gj312q0gk79j.jpg)
 
-![image-20200514211650396](https://tva1.sinaimg.cn/large/007S8ZIlgy1gesainfkdij314i0emthe.jpg)
+
+### 1. 拆分文件
+
+* 为了方便文件管理，我们把 parser 单独拆到文件中
+* parser 接受 HTML 文本作为参数，返回一颗 DOM 树
+
+
+
+### 2. 创建状态机
+
+
+
+#### 分析
+
+* 其他语言词法使用产生式定义，而 HTML 则直接把状态机的状态写出来。
+
+* 另外在 HTML 标准的 Tokenization 章节中，HTML 定义 80+ 状态，其中包含处理 RCDATA、SCRIPT、注释、DOCTYPE 等标签的状态，这里我们只关心大概不到 20+ 状态。
+
+* EOF：End Of File
+
+  * EOF 存在：文本节点的结束可能在文件结束时自然结束，在没有遇到特殊标签之前，可能分析还会保持着一个等待着继续补全字符的状态
+
+  * 解决方法：
+
+    * 使用常量 Symbol 处理 EOF
+    * `const EOF = Symbol("EOF")`
+    * 把 EOF 当作一个特殊的字符，在整个循环结束传给 state，起到标识文件结尾的作用
+
+    
+
+```js
+const EOF = Symbol("EOF");
+
+module.exports.parseHTML = function parseHTML(html){
+  let state = data;
+  for(let c of string) {
+    state = state(c);
+  }
+  state = state(EOF);
+}
+```
+
+
+
+
+
+#### 总结
+
+* 我们用 FSM(有限状态机) 来实现 HTML 的分析
+* 在 [HTML 标准中的 Tokenization ](https://html.spec.whatwg.org/multipage/parsing.html#data-state)中，已经规定了 HTML 的状态
+* Toy-Browser 只挑选其中一部分的状态，完成一个最简版本
+
+
+
+### 3. 解析标签
+
+* [data state]( https://html.spec.whatwg.org/multipage/parsing.html#data-state)
+* [tagOpen state](https://html.spec.whatwg.org/multipage/parsing.html#tag-open-state)
+* [endTagOpen state](https://html.spec.whatwg.org/multipage/parsing.html#end-tag-open-state)
+
+#### 分析
+
+```html
+<html maaa=a >
+    <head>
+        <title>cool</title>
+    </head>
+    <body></body>
+</html>
+
+<!--
+'<'
+'h'
+'t'
+'m'
+'l'
+' '
+'m'
+'a'
+'a'
+'a'
+'='
+'a'
+' '
+'>'
+StartTagToken{name: 'html', maaa: 'a'}
+'\n'
+'\n'
+'\n'
+'\n'
+'\n'
+'<'
+'h'
+'e'
+'a'
+'d'
+'>'
+StartTagToken{name: 'head'}
+...
+-->
+```
+
+
+
+![_Users_irvingliang_Downloads_Demo_fsm.html](https://tva1.sinaimg.cn/large/007S8ZIlgy1gevbfd5pf0j30u00u0n3d.jpg)
+
+
+
+#### 总结
+
+* 主要标签有：开始标签，结束标签和自封闭标签
+* 在这一步我们暂时忽略属性
+
+
+
+### 4. 创建元素
+
+* 在状态机中，处理状态迁移，我们还会要加入业务逻辑
+* 我们在标签结束状态提交标签 token
+
+
+
+### 5. 处理属性
+
+* 属性值分为单引号、双引号、无引号三种写法。因此需要较多状态处理
+* 处理属性的方式跟标签类似
+* 属性结束时，我们把标签加到标签 Token 上
+
+
+
+### 6. 构建 DOM 树
+
+* 从标签构建 DOM 树的基本技巧是 **使用栈**
+* 遇到开始标签时创建元素并入栈，遇到结束标签时出栈
+* 自封闭节点可视为入栈后立即出栈
+* 任何元素的父元素是它入栈的前的栈顶
+
+
+
+### 7. 文本节点
+
+* 文本节点与自封闭标签处理类似
+* 多文本节点需要合并
+
+
+
+
 
 ![image-20200514211804498](https://tva1.sinaimg.cn/large/007S8ZIlgy1gesajwzr14j30vg0qkth1.jpg)
 
 ![image-20200514212020574](https://tva1.sinaimg.cn/large/007S8ZIlgy1gesam5jicuj30oy0p212j.jpg)
 
-![image-20200514213202094](https://tva1.sinaimg.cn/large/007S8ZIlgy1gesaybmezrj315k0e4grs.jpg)
 
-![image-20200514214244733](/Users/irvingliang/Library/Application Support/typora-user-images/image-20200514214244733.png)
+
