@@ -1,7 +1,6 @@
 const http = require("http");
 
-let htmlStr = `
-    <html maaa=a >
+let htmlStr = `<html maaa=a   href="a" width='500px'>
     <head>
         <style>
     body div #myid{
@@ -20,8 +19,7 @@ let htmlStr = `
             <img />
         </div>
     </body>
-    </html>
-`;
+</html>`;
 
 const server = http.createServer((req, res) => {
     console.log("request received");

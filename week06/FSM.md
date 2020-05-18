@@ -1,16 +1,21 @@
-# 有限状态机
+# [有限状态机](https://zh.wikipedia.org/wiki/%E6%9C%89%E9%99%90%E7%8A%B6%E6%80%81%E6%9C%BA)
 
 [TOC]
 
 ## 概念
 
-简介：
+> **有限状态机**: finite-state machine，FSM。又称**有限状态自动机**（英语：finite-state automation，[缩写](https://zh.wikipedia.org/wiki/縮寫)：**FSA**），简称**状态机**，是表示有限个[状态](https://zh.wikipedia.org/wiki/状态)以及在这些状态之间的转移和动作等行为的[数学计算模型](https://zh.wikipedia.org/wiki/计算模型_(数学))。
+
+### 简介
 
 * 一种编程的思想
 * 应用广泛：
   * 游戏、AI、编译原理构建 AST、正则表达式的实现处理字符串
+* 分类：
+  * Moore 机 -  输出只依赖于状态
+  * Mealy 机 -  输出依赖于输入和状态
 
-概念：
+### 概念
 
 * 每个状态都是一个机器
   * 在每个机器里，我们可以做计算、存储、输出......，几乎可以在机器做编程能做的所有事

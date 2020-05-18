@@ -688,5 +688,5 @@ function f() {
 ## 5. 参考
 
 * [Ecma 标准 - 5.1 中文版本](https://www.w3cschool.cn/wsqzg/wsqzg-qdgl25mj.html)
-
-
+* [ECMAScript5.1中文版——颜海镜](http://yanhaijing.com/es5/#about)
+* [重学 js](https://github.com/lizhongzhen11/lizz-blog/issues/41)

@@ -65,11 +65,19 @@ module.exports.parseHTML = function parseHTML(html){
 
 ### 3. 解析标签
 
-* [data state]( https://html.spec.whatwg.org/multipage/parsing.html#data-state)
-* [tagOpen state](https://html.spec.whatwg.org/multipage/parsing.html#tag-open-state)
-* [endTagOpen state](https://html.spec.whatwg.org/multipage/parsing.html#end-tag-open-state)
-
 #### 分析
+
+* [data state]( https://html.spec.whatwg.org/multipage/parsing.html#data-state)
+
+* [tag open state](https://html.spec.whatwg.org/multipage/parsing.html#tag-open-state)
+
+* [tag name state](https://html.spec.whatwg.org/multipage/parsing.html#tag-name-state)
+
+* [end tag open state](https://html.spec.whatwg.org/multipage/parsing.html#end-tag-open-state)
+
+* [self closing start tag state](https://html.spec.whatwg.org/multipage/parsing.html#self-closing-start-tag-state)
+
+  
 
 ```html
 <html maaa=a >
@@ -78,42 +86,11 @@ module.exports.parseHTML = function parseHTML(html){
     </head>
     <body></body>
 </html>
-
-<!--
-'<'
-'h'
-'t'
-'m'
-'l'
-' '
-'m'
-'a'
-'a'
-'a'
-'='
-'a'
-' '
-'>'
-StartTagToken{name: 'html', maaa: 'a'}
-'\n'
-'\n'
-'\n'
-'\n'
-'\n'
-'<'
-'h'
-'e'
-'a'
-'d'
-'>'
-StartTagToken{name: 'head'}
-...
--->
 ```
 
 
 
-![_Users_irvingliang_Downloads_Demo_fsm.html](https://tva1.sinaimg.cn/large/007S8ZIlgy1gevbfd5pf0j30u00u0n3d.jpg)
+![img](https://static001.geekbang.org/resource/image/8b/b0/8b43d598bc1f83a8a1e7e8f922013ab0.png)
 
 
 
@@ -132,6 +109,35 @@ StartTagToken{name: 'head'}
 
 
 ### 5. 处理属性
+
+#### 分析
+
+
+
+* 属性：
+  * [before attribute name state](https://html.spec.whatwg.org/multipage/parsing.html#before-attribute-name-state)
+  * [attribute name state](https://html.spec.whatwg.org/multipage/parsing.html#attribute-name-state)
+  * [after attribute name state](https://html.spec.whatwg.org/multipage/parsing.html#after-attribute-name-state)
+* 值：
+  * [before attribute value state](https://html.spec.whatwg.org/multipage/parsing.html#before-attribute-value-state)
+  * 带引号：
+    * [attribute value (double-quoted) state](https://html.spec.whatwg.org/multipage/parsing.html#attribute-value-(double-quoted)-state)
+    * [attribute value (single-quoted) state](https://html.spec.whatwg.org/multipage/parsing.html#attribute-value-(single-quoted)-state)
+    * [after attribute value (quoted) state](https://html.spec.whatwg.org/multipage/parsing.html#after-attribute-value-(quoted)-state)
+  * 不带引号：
+    * [attribute value (unqoted) state](https://html.spec.whatwg.org/multipage/parsing.html#attribute-value-(unquoted)-state)
+
+```html
+<p maa=a
+   
+<p maa="a"
+
+<p maa='a'
+```
+
+
+
+#### 总结
 
 * 属性值分为单引号、双引号、无引号三种写法。因此需要较多状态处理
 * 处理属性的方式跟标签类似
@@ -154,12 +160,6 @@ StartTagToken{name: 'head'}
 * 多文本节点需要合并
 
 
-
-
-
-![image-20200514211804498](https://tva1.sinaimg.cn/large/007S8ZIlgy1gesajwzr14j30vg0qkth1.jpg)
-
-![image-20200514212020574](https://tva1.sinaimg.cn/large/007S8ZIlgy1gesam5jicuj30oy0p212j.jpg)
 
 
 

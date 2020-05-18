@@ -224,6 +224,10 @@ HTTP-Version SP Status-Code SP Reason-Phrase CRLF
 
 
 
+## 总结
+
+![img](https://static001.geekbang.org/resource/image/3d/a1/3db5e0f362bc276b83c7564430ecb0a1.jpg)
+
 
 
 https://www.cnblogs.com/zrtqsk/p/3746891.html
