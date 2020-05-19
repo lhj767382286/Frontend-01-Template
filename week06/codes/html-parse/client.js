@@ -263,6 +263,8 @@ void async function() {
 
     // 实现上我们等 response 完全构建完毕，才得到这个结果。实际上是用 generator 实现的
     let dom = parser.parseHTML(response.body);
+
+    console.log(dom);
     
 }();
 
