@@ -285,14 +285,22 @@ function foundA(c) {
 
 function foundB(c) {
     if (c === "c") {
-        return foundA2;
+        return foundC;
     } else {
         return start;
     }
 }
 
+function foundC(c) {
+  if (c === "a") {
+    return foundA2;
+  } else {
+    return state;
+  }
+}
+
 function foundA2(c) {
-    if (c === "a") {
+    if (c === "b") {
         return foundB2;
     } else {
         return start;
@@ -300,18 +308,10 @@ function foundA2(c) {
 }
 
 function foundB2(c) {
-    if (c === "b") {
-        return foundX;
-    } else {
-        return start;
-    }
-}
-
-function foundX(c) {
     if (c === "x") {
         return end;
     } else {
-        return start;
+        return foundB(c);
     }
 }
 
@@ -359,6 +359,14 @@ function foundA(c) {
 
 function foundB(c) {
     if (c === "c") {
+        return foundC;
+    } else {
+        return start;
+    }
+}
+
+function foundC(c) {
+    if (c === "a") {
         return foundA2;
     } else {
         return start;
@@ -366,7 +374,7 @@ function foundB(c) {
 }
 
 function foundA2(c) {
-    if (c === "a") {
+    if (c === "b") {
         return foundB2;
     } else {
         return start;
@@ -374,21 +382,14 @@ function foundA2(c) {
 }
 
 function foundB2(c) {
-    if (c === "b") {
-        return foundX;
-    } else {
-        return start;
-    }
-}
-
-function foundX(c) {
     if (c === "x") {
-        return end;
+        return foundX;
+    } else if (c === "c"){
+        return foundC;
     } else {
-        return foundB(c);
+      	return start;
     }
 }
-
 
 console.log(match('abcabcabx')); // true
 ```
