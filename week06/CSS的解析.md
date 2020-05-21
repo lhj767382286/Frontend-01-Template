@@ -220,11 +220,47 @@ function computeCSS(element) {
 
 
 
-#### 7.确定规则覆盖关系
+#### 7.[确定规则覆盖关系](https://drafts.csswg.org/selectors-3/#specificity)
 
 * CSS 规则根据 specificity 和后来优先规则覆盖
-* specificity 是个四元组，越左边权重越高
+* specificity 是个 **四元组**，越左边权重越高
 * 一个 CSS 规则的 specificity 根据包含的简单选择器相加而成
+
+> 早期 IE 使用 4 个字节存权重，问题：当超过 255 会发生进位，如： 255 个 tag 选择器就等于 1 个 class 选择器。
+
+```js
+/**
+ * 覆盖规则，权重计算
+ */
+function specificity(selector) {
+    var p = [0, 0, 0, 0];
+    var selectorParts = selector.split(" ");
+    for (var part of selectorParts) {
+        if (part.charAt(0) == "#") {
+            p[1] += 1;
+        } else if (part.charAt(0) == ".") {
+            p[2] += 1; 
+        } else {
+            p[3] += 3;
+        }
+    }
+    return p;
+}
+```
+
+```
+// 标准中的计算规则： https://drafts.csswg.org/selectors-3/#specificity∂
+
+*               /* a=0 b=0 c=0 -> specificity =   0 */
+LI              /* a=0 b=0 c=1 -> specificity =   1 */
+UL LI           /* a=0 b=0 c=2 -> specificity =   2 */
+UL OL+LI        /* a=0 b=0 c=3 -> specificity =   3 */
+H1 + *[REL=up]  /* a=0 b=1 c=1 -> specificity =  11 */
+UL OL LI.red    /* a=0 b=1 c=3 -> specificity =  13 */
+LI.red.level    /* a=0 b=2 c=1 -> specificity =  21 */
+#x34y           /* a=1 b=0 c=0 -> specificity = 100 */
+#s12:not(FOO)   /* a=1 b=0 c=1 -> specificity = 101 */
+```
 
 
 
