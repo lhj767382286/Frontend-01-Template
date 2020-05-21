@@ -1,5 +1,9 @@
 # Browser CSS
 
+
+
+![](https://static001.geekbang.org/resource/image/63/4c/6391573a276c47a9a50ae0cbd2c5844c.jpg)
+
 ## 环境准备
 
 * npm i [css](https://www.npmjs.com/package/css)
@@ -225,6 +229,19 @@ function computeCSS(element) {
 
 
 ## Layout
+
+> 排版: “排版”这个概念最初来自活字印刷，是指我们把一个一个的铅字根据文章顺序，放入板框当中的步骤，排版的意思是确定每一个字的位置。在现代浏览器中，仍然借用了这个概念，但是排版的内容更加复杂，包括文字、图片、图形、表格等等，**我们把浏览器确定它们位置的过程，叫作排版**。
+
+
+
+* 正常流排版
+  * 正常流是唯一一个文字和盒混排的排版方式
+* Flex 排版
+* Grid 排版
+* 表格排版
+* ...
+
+
 
 ### 浏览器
 
