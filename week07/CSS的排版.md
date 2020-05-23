@@ -12,22 +12,67 @@
 
 ## 排版
 
-* 正常流排版
+浏览器中的三代排版技术：
+
+* 第一代：正常流排版
+  
   * 正常流是唯一一个文字和盒混排的排版方式
-* Flex 排版
-* Grid 排版
-* 表格排版
-* ...
+  * `display: Block、inline-block、inline`
+  * `position: relative、absolute、`
+  * `float`
+  
+* 第二代：Flex 排版
+
+  * 最简单实现
+  * RN 证明：Flex 已经足够满足日常布局排版需求
+
+* 第三代：Grid 排版
+
+  
 
 ### [Flex 排版](https://developer.mozilla.org/zh-CN/docs/Learn/CSS/CSS_layout/Flexbox)
 
-> RN 已经表明：Flex 已经足够满足日常布局排版需求
+#### 应用
 
 * 在父内容里面垂直居中一个块内容。
 * 使容器的所有子项占用等量的可用宽度/高度，而不管有多少宽度/高度可用。
 * 使多列布局中的所有列采用相同的高度，即使它们包含的内容量不同。
 
+#### 概念
+
+* Main Axis - 主轴
+* Cross Axis - 交叉轴
+* 关系：
+  * 默认情况下主轴是水平的
+    * Flex-driection: row 时，主轴是水平的
+    * Flex-direction: column 时，主轴是垂直的
+  * 没有折行现象（即 `flex-wrap: nowrap`） 时，不存在交叉轴
+
+* `flex-driection: row`
+  * Main: width、x、left、right
+  * Cross: height、y、top、bottom
+* `flex-direction: column`
+  * Main: height、y、top、bottom
+  * Cross: width、x、left、right
+
 ![image-20200519112054154](https://tva1.sinaimg.cn/large/007S8ZIlgy1gexldy8aj1j30k408mjrz.jpg)
+
+```js
+// 起点
+base 
+// 方向
+sign
+// 三个属性
+size
+start
+end
+```
+
+
+
+
+
+
 
 #### 步骤
 
@@ -35,6 +80,7 @@
 
 * 根据主轴尺寸，把元素分进行
 * 若设置了 `no-wrap`，则强行分配进第一行
+* 只跟 mainSize 有关
 
 ![image-20200519112158352](https://tva1.sinaimg.cn/large/007S8ZIlgy1gexlf2ohgqj30kk089wf3.jpg)
 

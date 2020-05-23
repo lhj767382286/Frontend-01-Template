@@ -174,7 +174,8 @@ function emit(token) {
             if (top.tagName === "style") {
                 addCSSRules(top.children[0].content);
             }
-            // 结束标签才排版，可以确定子元素
+            // 拿到子元素才能进行 layout，实际上浏览器 layout，根据属性判断在不同阶段：
+            // 如，正常流会在 starttag 就可以进行 layout
             layout(top);
 
             stack.pop();
