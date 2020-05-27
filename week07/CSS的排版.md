@@ -38,10 +38,12 @@
 * 使容器的所有子项占用等量的可用宽度/高度，而不管有多少宽度/高度可用。
 * 使多列布局中的所有列采用相同的高度，即使它们包含的内容量不同。
 
-#### 概念
+#### 主要概念
 
 * Main Axis - 主轴
+  * 代表元素排布的方向
 * Cross Axis - 交叉轴
+  * 代表跟主轴垂直的方向
 * 关系：
   * 默认情况下主轴是水平的
     * Flex-driection: row 时，主轴是水平的
@@ -55,22 +57,53 @@
   * Main: height、y、top、bottom
   * Cross: width、x、left、right
 
-![image-20200519112054154](https://tva1.sinaimg.cn/large/007S8ZIlgy1gexldy8aj1j30k408mjrz.jpg)
+
+
+
+
+#### 主要变量
+
+* 三个存属性名的变量
+  * mainSize
+    * 'width' - 当主轴方向是水平方向时（即 `flex-direction: row | row-reverse`）
+    * 'height' - 当主轴方向是垂直方向时（即 `flex-direction: column | column-reverse`）
+  * mainStart
+    * left - 当 `flex-direction: row` 时
+    * right - 当 `flex-direction: row-reverse` 时
+    * top - 当 `flex-direction: column` 时
+    * bottom - 当 `flex-direction: column-reverse`
+  * mainEnd
+    * right - 当 `flex-direction: row` 时
+    * left - 当 `flex-direction: row-reverse` 时
+    * bottom - 当 `flex-direction: column` 时
+    * top- 当 `flex-direction: column-reverse`
+* 排版的起点
+  * mainBase
+    * 0 - 当 `flex-direction: row | column` 时
+    * containerStyle.width - 当 `flex-direction: row-reverse`
+      * containerStyle.height - 当 `flex-direction: column-reverse`
+* 排版的方向
+  * mainSign
+    * +1 - 当 `flex-direction: row | column`
+    * -1 - 当 `fex-direction: row-reverse | coluimn-reverse`
 
 ```js
-// 起点
-base 
-// 方向
-sign
-// 三个属性
-size
-start
-end
+// 3个存属性名的变量
+mainSize: ['width' | 'height']
+mainStart: ['left' | 'right' | 'top' | 'bottom']
+mainEnd: ['right' | 'left' | 'bottom' | 'top']
+
+// 排版的起点(开始的位置)
+mianBase: [0 | container.width | container.height]
+
+// 排版的方向
+mainSign: [+1 | -1]
+
+
+// 交叉轴类似
+// 注意 wrap-reverse 会改变交叉轴的方向
+// 需要将 crossStart、 crossEnd 互换
 ```
-
-
-
-
 
 
 
@@ -78,22 +111,45 @@ end
 
 ##### 1. 收集元素进行
 
-* 根据主轴尺寸，把元素分进行
+* 根据主轴尺寸（mainSize），把元素分进行
 * 若设置了 `no-wrap`，则强行分配进第一行
-* 只跟 mainSize 有关
 
-![image-20200519112158352](https://tva1.sinaimg.cn/large/007S8ZIlgy1gexlf2ohgqj30kk089wf3.jpg)
+![：](https://tva1.sinaimg.cn/large/007S8ZIlgy1gexlf2ohgqj30kk089wf3.jpg)
+
+```js
+// 特例
+1. 父元素没有设置 mainSize 这个属性 => 撑开（所有主元素 mainSize 累加）
 
 
+2. 子元素有 flex 属性: 意味着可伸缩，代表着这一行无论有多少元素一定能放进去
+3. 父元素有 nowrap: 所有元素往第一行里塞
+4. 其他情况：
+	4.1 item 本身超 container.mainSize => item.mainSize = container.mainSize
+	4.2 container 当前 flexLine 放不下 item => 新开 flexLine
+  4.3 直接进行
+	
+
+// 变量
+var mainSpace = elementStyle[mainSize] // 行剩余空间
+var crossSpace = 0; // 交叉轴尺寸
+```
 
 ##### 2. 计算主轴
 
+> Flex 元素是可以填满剩余宽度（主轴尺寸）的。所以在计算主轴时，意味着首先需要知道剩余宽度是多少。因此，在计算主轴时，我们会认为所有的 flex 元素宽度是个 `?`，我们会先把其他的元素都排完，最后才把剩余宽度按 flex 属性的比例分配。当剩余空间为负数时，按等比压缩剩余元素。
+
 * 计算主轴方向
   * 找出所有 Flex 元素 
-  * 把主轴方向的尺寸按比例分配给这些元素
+  * 把主轴方向的尺寸（mainSize）按比例分配给这些元素
   * 若剩余空间为负数，所有 flex 元素为 0，等比压缩剩余元素
 
-![image-20200519112224313](https://tva1.sinaimg.cn/large/007S8ZIlgy1gexlfiwtj7j30kd082my7.jpg)
+![image-20200524123835629](https://tva1.sinaimg.cn/large/007S8ZIlgy1gf3fqdhimxj30ta0nm0w4.jpg)
+
+![image-20200524123900034](/Users/irvingliang/Library/Application Support/typora-user-images/image-20200524123900034.png)
+
+![image-20200524123917787](https://tva1.sinaimg.cn/large/007S8ZIlgy1gf3fr2c2dwj30tk0oa41x.jpg)
+
+
 
 
 

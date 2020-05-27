@@ -47,6 +47,7 @@ function layout(element) {
 
     var style = elementStyle;
 
+    // 宽高默认值统一处理
     ['width', 'height'].forEach(size => {
         if(style[size] === 'auto' || style[size] === '') {
             style[size] = null;
@@ -79,12 +80,13 @@ function layout(element) {
         style.alignContent = 'stretch';
     }
 
-    // 使用以下 10 个变量抽象一个方向
-    // size - 尺寸，可选值：width、height
-    // start、end - 方向，可选值：left -> right、right -> left、top -> bottom、bottom -> top
+    // 使用以下 10 个变量抽象不同方向计算
+    // 3 个存属性的变量：
+    //      size - 尺寸，可选值：width、height
+    //      start、end - 方向，可选值：left -> right、right -> left、top -> bottom、bottom -> top
     // sign - 排版方向，可选值：+1 (left -> right, 在 base 基础上加)、-1 (right -> left)
-    // base - 排版起点，可选值：0 (left -> right)、元素宽度的值 (right -> left)
-    var mainSize, mainStart, mainEnd, mianSign, mainBase, 
+    // base - 排版起点（开始的位置），可选值：0 (left -> right)、元素宽度的值 (right -> left)
+    var mainSize, mainStart, mainEnd, mainSign, mainBase, 
         crossSize, crossStart, crossEnd, crossSign, crossBase;
 
     // left -> right
@@ -92,7 +94,7 @@ function layout(element) {
         mainSize ='width';
         mainStart = 'left';
         mainEnd = 'right';
-        mainSize = +1; // 可以理解为正负号
+        mainSize = +1; // 可以理解为正负号，从左往右
         mainBase = 0;
 
         crossSize = 'height';
@@ -148,7 +150,7 @@ function layout(element) {
         crossSign = -1;
     } else {
         crossBase = 0;
-        crossSign = 1;
+        crossSign = +1;
     }
 
 
@@ -189,7 +191,7 @@ function layout(element) {
             // flex 属性意味着可伸缩，代表着这一行无论有多少元素一定能放进去
             flexLine.push(item);
 
-        // 父元素有 nowrap 
+        // 父元素有 nowrap  - 所有元素往第一行里塞
         } else if (style.flexWrap === 'nowrap' && isAutoMainSize) {
             mainSpace -= itemStyle[mainSize];
             if (iemStyle[crossSize] !== null && itemStyle[crossSize] !== (void 0)) {
@@ -197,31 +199,143 @@ function layout(element) {
             }
             flexLine.push(item);
         } else {
+
+            // 本身 item 超过 1 行宽度，将 item 缩到行宽 (container 的 with)
             if (itemStyle[mainSize] > style[mainSize]) {
                 itemStyle[mainSize] = style[mainSize];
             }
 
-            if (mianSpace < itemStyle[mainSize]) {
-                flexLine.mainSpace = mianSpace;
+            // 如果 container 当前 flexLine 剩余的空间放不下 item
+            if (mainSpace < itemStyle[mainSize]) {
+                // 把当前 flexLine 的 mainSpace、crossSpace 存起来
+                flexLine.mainSpace = mainSpace;
                 flexLine.crossSpace = crossSpace;
+                
+                // 新开一个 flexLine
                 flexLine = [item];
                 flexLines.push(flexLine);
+
+                // 重置 mainSpace、crossSpace
                 mainSpace = style[mainSize];
                 crossSpace = 0;
             } else {
                 flexLine.push(item);
             }
 
+            // 一行高度，取决与最高的 item
             if (itemStyle[crossSize] !== null && itemStyle[crossSize] !== (void 0)) {
-                crossStart = Math.max(crossSpace, itemStyle[crossSize]);
+                crossSpace = Math.max(crossSpace, itemStyle[crossSize]);
             }
 
+            // 扣除已经排进来的元素的 mainSpace
             mainSpace -= itemStyle[mainSize];
         }
     }
 
-    flexLine.mianSpace = mainSpace;
+    // 设置 mainSpace
+    flexLine.mainSpace = mainSpace;
 
+    // 设置 crossSpace
+    if (style.flexWrap === 'nowrap' || isAutoMainSize) {
+        // nowrap、auto-size => 父元素的高度
+        flexLine.crossSpace = (style[crossSize] !== null) ? style[crossSize] : crossSpace;
+    } else {
+        flexLine.crossSpace = crossSpace;
+    }
+
+    if (mainSpace < 0) {
+        // overflow (happens only if container is single line), scale every item
+        var scale = style[mainSize] / (style[mainSize] - mainSpace);
+
+        var currentMain = mainSpace;
+
+        for (var i = 0; i < items.length; i++) {
+            var item = items[i];
+            var itemStyle = getStyle(item);
+
+            // flex 元素宽度先设置为 0 
+            if (itemStyle.flex) {
+                itemStyle[mainSize] = 0;
+            }
+
+            itemStyle[mainSize] = itemStyle[mainSize] * scale;
+
+            itemStyle[mainStart] = currentMain;
+            itemStyle[mainEnd] = itemStyle[mainStart] + mainSign * item[mainSize];
+            currentMain = itemStyle[mainEnd];
+
+        }
+    } else {
+        // process each flex line
+        flexLines.forEach(function (items) {
+
+            var mainSpace = items.mainSpace;
+            var flexTotal = 0;
+            for (var i = 0; i < items.length; i++) {
+                var item = items[i];
+                var itemStyle = getStyle(item);
+
+                if ((itemStyle.flex !== null) && (itemStyle.flex !== (void 0))) {
+                    flexTotal += itemStyle.flex;
+                    continue;
+                }
+            }
+
+            if  (flexTotal > 0) {
+                // There is flexible flex items
+                var currentMain = mainBase;
+                for (var i = 0; i < items.length; i++) {
+                    var item = items[i];
+                    var itemStyle = getStyle(item);
+
+
+                    if (itemStyle.flex) {
+                        itemStyle[mainSize] = (mainSpace / flexTotal) * itemStyle.flex;
+                    }
+
+                    itemStyle[mainStart] = currentMain;
+                    itemStyle[mainEnd] = itemStyle[mainStart] + mainSign * itemStyle[mainSize];
+                    currentMain = itemStyle[mianEnd];
+                }
+
+            } else {
+                // There is *NO* flexible flex items, which means, justifyContent should work
+                if (style.justifyContent === 'flex-start') {
+                    var currentMain = mainBase;
+                    var step = 0;
+                }
+
+                if (style.justifyContent === 'flex-end') {
+                    var currentMain = mainSpace * mainSign + mainBase;
+                    var step = 0;
+                }
+
+                if (style.justifyContent === 'center') {
+                    var currentMain = mainSpace / 2 * mainSign + mainBase;
+                    var step = 0;
+                }
+
+                if (style.justifyContent === 'space-between') {
+                    var step = mainSpace / (items.length - 1) * mainSign;
+                    var currentMain = mainBase;
+                }
+
+                if (style.justifyContent === 'space-around') {
+                    var step = mainSpace / items.length * mainSign;
+                    var currentMain = 0;
+                }
+
+                for (var i = 0; i < items.length; i++) {
+                    var item = items[i];
+                    itemStyle[mainStart] = currentMain;
+                    itmStyle[mainEnd] = itemStyle[mainStart] + mainSign * itemStyle[mainSize];
+                    currentMain = itemStyle[mainEnd] + step;
+                }
+
+            }
+
+        });
+    }
 
 }
 
