@@ -81,7 +81,7 @@
   * mainBase
     * 0 - 当 `flex-direction: row | column` 时
     * containerStyle.width - 当 `flex-direction: row-reverse`
-      * containerStyle.height - 当 `flex-direction: column-reverse`
+    * containerStyle.height - 当 `flex-direction: column-reverse`
 * 排版的方向
   * mainSign
     * +1 - 当 `flex-direction: row | column`
@@ -154,6 +154,9 @@ var crossSpace = 0; // 交叉轴尺寸
 
 
 ##### 3. 计算交叉轴
+
+* 根据每一行中最大元素尺寸计算行高
+* 根据行高 flex-align 和 item-align 确定元素具体位置
 
 ![image-20200519112252304](https://tva1.sinaimg.cn/large/007S8ZIlgy1gexlg08tqkj30ke07yjs5.jpg)
 
