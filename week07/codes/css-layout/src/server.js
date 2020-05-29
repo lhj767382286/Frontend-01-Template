@@ -32,6 +32,7 @@ let htmlStr = `<html maaa=a >
 }
 .demo3 {
     display: flex;
+    flex: 1;
     width: 300px;
     height: 200px;
     background-color: rgb(255,215,255);
