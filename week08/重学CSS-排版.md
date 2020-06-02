@@ -93,8 +93,6 @@ width 根据 box-sizing 分为两种盒模型：
 
 
 
-
-
 ### 正常流的行模型 - IFC
 
 * 文字与文字、文字与 inline-box 之间混排的关系
@@ -259,7 +257,80 @@ width 根据 box-sizing 分为两种盒模型：
 
 
 
+#### [行盒模型](https://www.zhangxinxu.com/wordpress/2010/01/css-float%e6%b5%ae%e5%8a%a8%e7%9a%84%e6%b7%b1%e5%85%a5%e7%a0%94%e7%a9%b6%e3%80%81%e8%af%a6%e8%a7%a3%e5%8f%8a%e6%8b%93%e5%b1%95%e4%b8%80/)
+
+```html
+<p>这是一行普通的文字，这里有个 <em>em</em> 标签。</p>
+```
+
+这段HTML代码涉及到：
+
+* 4种 boxes
+  * containing box
+  * content area
+  * line boxes
+  * inline boxes
+* 关系：
+  * 在 containing box 里，一个一个的 inline box 组成了 line boxes 
+
+
+
+#####  1. content area
+
+> 内容区域
+
+* 指一种围绕文字 **看不见** 的盒子
+* 其大小仅受字符本身特性控制
+* 本质上是一个字符盒子 (character box)
+* 对于替换元素 - 内容区域可以看成元素自身
+* 可以把文本选中的背景色区域理解为内容区域
+
+
+
+
+
+![content area示意 >> 张鑫旭-鑫空间-鑫生活](https://image.zhangxinxu.com/image/blog/201001/2010-01-20_223108.png)
+
+##### 2. inline box
+
+> 内联盒子
+
+* inline box 不会让内容成块显示，而是排成一行
+* 分为两种：
+  * inline box：外部含内联标签，如：`span`、`a`、`em`
+  * 匿名 inline box：光秃秃文字
+
+![inline boxes示意 >> 张鑫旭-鑫空间-鑫生活](http://image.zhangxinxu.com/image/blog/201001/2010-01-20_220341.png)
+
+
+
+##### 3. line box
+
+> 行框盒子
+
+* 每一行就是一个 line box
+* 每一个 line box 又是由一个个 inline box 组成的
+
+![line boxes示意 >> 张鑫旭-鑫空间-鑫生活](http://image.zhangxinxu.com/image/blog/201001/2010-01-20_221641.png)
+
+
+
+##### 4. containing box
+
+> 包含盒子，在规范中称之为 containing block
+
+* 如 p 标签就是一个 containing box
+* containing box 由一行行的 line box 组成
+
+```html
+<p>...</p>
+```
+
+
+
 #### vertical-align
+
+> 存在一定问题
 
 > [代码](https://github.com/lhj767382286/Frontend-01-Template/blob/master/week08/codes/normal-flow/line_06.html)
 
