@@ -117,7 +117,6 @@ width 根据 box-sizing 分为两种盒模型：
 
 #### Line
 
-* 
 * 但是实际两者的行高是不一致的
   * Hello - 100px
   * World - 70px
@@ -155,7 +154,7 @@ width 根据 box-sizing 分为两种盒模型：
 
 
 
-若此时我们把 World 去掉，则会出现下图的情况，原因在于：**一个 line-box 如果里面没有任何文字的情况下，它的基线在底部**。查看发现元素的 `computedStyle` 发现： `vertical-align: baseline` 是没有发生改变，但 baseline 变成了盒子的下沿，但有文字时就是文字的下沿。
+若此时我们把 World 去掉，则会出现下图的情况，原因在于：**[一个 line-box 如果里面没有任何文字的情况下，它的基线在底部](https://www.zhangxinxu.com/wordpress/2015/08/css-deep-understand-vertical-align-and-line-height/)**(**一个 inline-block 元素，如果里面没有 inline 内联元素，或者 overflow 不是 visible，则该元素的基线就是其 margin 底边缘，否则，其基线就是元素里面最后一行内联元素的基线。**)。查看发现元素的 `computedStyle` 发现： `vertical-align: baseline` 是没有发生改变，但 baseline 变成了盒子的下沿，但有文字时就是文字的下沿。
 
 ```html
 <div style="font-size:50px;line-height: 100px; background-color: pink; ">
@@ -262,6 +261,8 @@ width 根据 box-sizing 分为两种盒模型：
 
 #### vertical-align
 
+> [代码](https://github.com/lhj767382286/Frontend-01-Template/blob/master/week08/codes/normal-flow/line_06.html)
+
 * baseline - 拿自己的 baseline 对齐行的 baseline
 
 *  top/middle/bottom - 拿自己的 top/middle/bottom 对齐行的 top/middle/bottom
@@ -269,6 +270,70 @@ width 根据 box-sizing 分为两种盒模型：
 * text-top/ text-bottom - 拿自己的 text-top/text-bottom 对齐行的text-top/text-bottom
 
   
+
+![_Users_lianghaijie_work_my-codes_Frontend-01-Template_week08_codes_normal-flow_line_06.html](https://tva1.sinaimg.cn/large/007S8ZIlgy1gfdrv14oooj30vv0fa0th.jpg)
+
+
+
+#### getClientRects
+
+```html
+<div style="font-size:50px;line-height: 100px; background-color: pink; ">
+    <div style="vertical-align:baseline;overflow: visible; display: inline-block; width: 1px; height: 1px;" id="showVerticalAlign">
+        <div style="width:1000px;height: 1px; background-color: red;"></div>
+    </div>
+    <div style="vertical-align:top;overflow: visible; display: inline-block; width: 1px; height: 1px;" id="showVerticalAlign">
+        <div style="width:1000px;height: 1px; background-color: red;"></div>
+    </div>
+    <div style="vertical-align:bottom;overflow: visible; display: inline-block; width: 1px; height: 1px;" id="showVerticalAlign">
+        <div style="width:1000px;height: 1px; background-color: red;"></div>
+    </div>
+    <div style="vertical-align:middle;overflow: visible; display: inline-block; width: 1px; height: 1px;" id="showVerticalAlign">
+        <div style="width:1000px;height: 1px; background-color: red;"></div>
+    </div>
+    <div style="vertical-align:text-top;overflow: visible; display: inline-block; width: 1px; height: 1px;" id="showVerticalAlign">
+        <div style="width:1000px;height: 1px; background-color: red;"></div>
+    </div>
+    <div style="vertical-align:text-bottom;overflow: visible; display: inline-block; width: 1px; height: 1px;" id="showVerticalAlign">
+        <div style="width:1000px;height: 1px; background-color: red;"></div>
+    </div>
+    <span style="background: grey">Hello Hello Hello Hello Hello Hello Hello Hello Hello</span>
+    <div style="vertical-align: bottom; line-height: 70px;width: 100px; height: 150px; background-color: aqua; display: inline-block">World1</div>
+    <div style="vertical-align: top; line-height: 70px;width: 100px; height: 50px; background-color: aqua; display: inline-block">World2</div>
+    <div style="vertical-align: top; line-height: 70px;width: 100px; height: 550px; background-color: plum; display: inline-block">World3</div>
+</div>
+
+<scirpt>
+	$0.getClientRects();
+  // 一个 span 产生的两个盒的位置 
+  // 可以看作是 line-box里的 inline-box
+  DOMRectList: {
+  	// DOMRect
+  	0: {
+      x: 113.9375
+      y: 23
+      width: 649.359375
+      height: 70
+      top: 23
+      right: 763.296875
+      bottom: 93
+      left: 113.9375
+ 	 	},
+  	1: {
+      x: 8
+      y: 173
+      width: 516.15625
+      height: 70
+      top: 173
+      right: 524.15625
+      bottom: 243
+      left: 8
+    }
+  }
+</scirpt>
+```
+
+![_Users_lianghaijie_work_my-codes_Frontend-01-Template_week08_codes_normal-flow_line_07_span.html (1)](https://tva1.sinaimg.cn/large/007S8ZIlgy1gfe6r6fsecj30la0m8wfd.jpg)
 
 
 
