@@ -115,7 +115,7 @@ width 根据 box-sizing 分为两种盒模型：
 
 #### Line
 
-* 但是实际两者的行高是不一致的
+* 文字对齐，但是实际两者的行高是不一致的
   * Hello - 100px
   * World - 70px
 * 这说明 Hello 和 World 是有一条对齐的基准线，即 baseline
