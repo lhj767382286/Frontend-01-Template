@@ -41,9 +41,9 @@ width 根据 box-sizing 分为两种盒模型：
 
 
 ```js
-为啥border-box不叫margin-box：不包含 margin-box
+为啥 border-box 不叫margin-box：不包含 margin-box
 
-为什么没有margin box: margin会出现重叠、magin 有合并
+为什么没有 margin box: margin会出现重叠、magin 有合并
 ```
 
 
@@ -259,6 +259,16 @@ width 根据 box-sizing 分为两种盒模型：
 可以发现：**行高上边沿是由 text-bottom 撑开的，下边沿是由 text-top 撑开的。** 可以得出正常流的交叉轴的尺寸 crossSpace 的计算方式是：先算上沿，再算下沿，然后减去 text 的高度。
 
 
+
+#### vertical-align
+
+* baseline - 拿自己的 baseline 对齐行的 baseline
+
+*  top/middle/bottom - 拿自己的 top/middle/bottom 对齐行的 top/middle/bottom
+
+* text-top/ text-bottom - 拿自己的 text-top/text-bottom 对齐行的text-top/text-bottom
+
+  
 
 
 
