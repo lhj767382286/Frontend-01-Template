@@ -1,8 +1,17 @@
+<!-- 
 
-<style>
     p.special::before {
         display: block;
         content: "pseudo! ";
     }
 </style>
+<p class="special">I'm real element</p> -->
+
+
 <p class="special">I'm real element</p>
+<style>
+    p.special::before {
+        display: block;
+        content: counter(chapno, upper-roman) ". ";
+    }
+</style>

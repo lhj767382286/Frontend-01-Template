@@ -80,6 +80,8 @@ html|a {
 
 #### 复杂选择器
 
+选择器的连接方式如下：
+
 * `<复合选择器><sp><复合选择器>` - 后代，表示选中所有符合条件的后代节点
 * `<复合选择器>">"<复合选择器>` - 子代，表示选中符合条件的子节点
 * `<复合选择器>"~"<复合选择器>` - 后继，表示选中所有符合条件的后继节点（即跟当前节点具有同一个父元素，并出现在它之后的节点）
@@ -102,7 +104,7 @@ html|a {
 .a+.b
 ```
 
-
+第一优先级是无连接符号；第二优先级是：“空格”“~”“+”“>”“||”；第三优先级是“,”。
 
 
 
@@ -391,7 +393,9 @@ CSS 标准只要求 **`::first-line` 和 `::first-letter `实现有限的几个 
 
 #### `::before` 与 `::after`
 
-* 与前两个不同： **不是把已有的内容套上一个元素，而是真正的无中生有，造出一个元素**
+* 与前两个不同：
+  *  **不是把已有的内容套上一个元素，而是真正的无中生有，造出一个元素**
+  * 支持所有的 CSS 属性
 * `::before` -  表示在元素内容之前插入一个虚拟的元素
 * `::after` - 则表示在元素内容之后插入
 * **两个伪元素所在的 CSS 规则必须指定`content` 属性才会生效**
@@ -411,3 +415,18 @@ CSS 标准只要求 **`::first-line` 和 `::first-letter `实现有限的几个 
 
 ![_Users_lianghaijie_work_my-codes_Frontend-01-Template_week08_codes_css-selectors_pseudo-elements_before&after.html](https://tva1.sinaimg.cn/large/007S8ZIlgy1gff9axvj19j308e0183yb.jpg)
 
+::before 和 ::after 还支持 content 为 counter，这对于实现一些列表样式是非常有用的。如：
+
+```html
+<p class="special">I'm real element</p>
+<style>
+    p.special::before {
+        display: block;
+        content: counter(chapno, upper-roman) ". ";
+    }
+</style>
+```
+
+
+
+`::before` 和 `::after` 中支持所有的 CSS 属性。实际开发中，这两个伪元素非常有用，有了这两个伪元素，一些修饰性元素，可以使用纯粹的 CSS 代码添加进去，这能够很好地保持 HTML 代码中的语义，既完成了显示效果，又不会让 DOM 中出现很多无语义的空元素
