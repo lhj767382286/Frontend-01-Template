@@ -81,7 +81,7 @@ width 根据 box-sizing 分为两种盒模型：
 
 
 
-如上图左侧部分，为正常流排版中的行内的排布计算部分，称之为 Inline Formatting Context (简称为 IFC)。它的排列方式是 **从左往右**，涉及两种内容：一是英文字母，如上图中的 `T`、`e`；二是 `inline-box`，Inline Box 有自己的宽高、与文字混合排布。当元素 `display` 属性被设置为 `inline`、`inline-block`、`inline-flex` 等时，在排版中就会被当成 `inline-box` 去计算排布。
+如上图左侧部分，为正常流排版中的行内的排布计算部分，称之为 Inline Formatting Context (简称为 IFC)。它的排列方式是 **从左往右**，涉及两种内容：一是英文字母，如上图中的 `T`、`e`，属匿名 inline box；二是 `inline-box`，Inline Box 有自己的宽高、与文字混合排布。当元素 `display` 属性被设置为 `inline`、`inline-block`、`inline-flex` 等时，在排版中就会被当成 `inline-box` 去计算排布。
 
 
 
@@ -114,12 +114,6 @@ width 根据 box-sizing 分为两种盒模型：
   
 
 #### Line
-
-* 文字对齐，但是实际两者的行高是不一致的
-  * Hello - 100px
-  * World - 70px
-* 这说明 Hello 和 World 是有一条对齐的基准线，即 baseline
-* 我们可以通过一定的手段看到这条基线，如代码块2。
 
 ```html
 <div style="font-size:50px;line-height: 100px; background-color: pink; ">
