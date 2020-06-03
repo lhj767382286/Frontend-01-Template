@@ -249,7 +249,7 @@ function specificity(selector) {
 ```
 
 ```
-// 标准中的计算规则： https://drafts.csswg.org/selectors-3/#specificity∂
+// 标准中的计算规则： https://drafts.csswg.org/selectors-3/#specificity
 
 *               /* a=0 b=0 c=0 -> specificity =   0 */
 LI              /* a=0 b=0 c=1 -> specificity =   1 */
