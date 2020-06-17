@@ -1,0 +1,15 @@
+#box {
+    width: 350px;
+}
+
+.cell {
+    width: 100px;
+    height: 100px;
+    background: green;
+    display: inline-block;
+    vertical-align: middle;
+    font-size: 50px;
+    text-align: center;
+    line-height: 100px;
+    margin: 0 10px 10px 0;
+}

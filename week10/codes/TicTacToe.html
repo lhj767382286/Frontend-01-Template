@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>TicTacToe</title>
+    <link href="./css/index.css" rel="stylesheet">
+</head>
+<body>
+    <div id="box"></div>
+
+    <script src="./js/index.js"></script>
+    <script>
+        window.onload = function() {
+            window.ticTacToe = new TicTacToe({
+                el: document.querySelector('#box')
+            })
+            ticTacToe._init()
+            console.log(ticTacToe)
+        }
+    </script>
+</body>
+</html>
