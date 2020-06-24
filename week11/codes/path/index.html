@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>path</title>
+        <link rel="stylesheet" href="./css/index.css">
+    </head>
+    <body>
+        <canvas></canvas>
+        <div>
+            <button onclick="saveEvent()">save</button>
+            <button onclick="clearEvent()">clear</button>
+            <div class="point-input">
+                <input type="text" id="startx" value="0" />
+                <span>,</span>
+                <input type="text" id="starty" value="0" />
+            </div>
+            <div class="point-input">
+                <input type="text" id="endx" value="50" />
+                <span>,</span>
+                <input type="text" id="endy" value="50" />
+            </div>
+            <button onclick="findPath()">start</button>
+        </div>
+        <script>
+            const width = 100;
+            const height = 100;
+            const rect = 15;
+            let map = Array(width * height).fill(-1);
+
+            let view = document.querySelector("canvas");
+            view.width = 1500;
+            view.height = 1500;
+            view.style.width = view.width / 2 + "px";
+            view.style.height = view.height / 2 + "px";
+            let vctx = view.getContext("2d");
+            vctx.imageSmoothingEnabled = false;
+            vctx.strokeStyle = "#666";
+            vctx.lineWidth = 1;
+
+            function draw() {
+                vctx.clearRect(0, 0, view.width, view.height);
+                for (let i = 0; i < map.length; i++) {
+                    let x = i % width;
+                    let y = Math.floor(i / width);
+                    vctx.save();
+                    if (map[i] === -1) {
+                        vctx.fillStyle = "#fff";
+                    } else {
+                        vctx.fillStyle = "#000";
+                    }
+                    vctx.fillRect(x * rect, y * rect, rect, rect);
+                    vctx.strokeRect(x * rect, y * rect, rect, rect);
+                    vctx.restore();
+                }
+            }
+
+            function saveEvent() {
+                window.localStorage.setItem("__map", JSON.stringify(map));
+            }
+
+            function clearEvent() {
+                map.fill(-1);
+                window.localStorage.removeItem("__map");
+                draw();
+            }
+
+            let storgae = window.localStorage.getItem("__map");
+            if (storgae) {
+                map = JSON.parse(storgae);
+            }
+            draw();
+
+            function fill([x, y], color) {
+                vctx.fillStyle = color;
+                vctx.fillRect(x * rect, y * rect, rect, rect);
+                vctx.strokeRect(x * rect, y * rect, rect, rect);
+            }
+        </script>
+        <script>
+            function clickEvent(e) {
+                const isClear = e.button === 2;
+                let x = Math.floor((e.pageX * 2) / rect);
+                let y = Math.floor((e.pageY * 2) / rect);
+                let idx = y * width + x;
+                map[idx] = isClear ? -1 : -2;
+                fill([x, y], isClear ? "#fff" : "#000");
+
+                function mousemoveEvent(e) {
+                    e = e || window.event;
+                    let distx = Math.floor((e.pageX * 2) / rect);
+                    let disty = Math.floor((e.pageY * 2) / rect);
+                    // 插值
+                    while (distx != x || disty != y) {
+                        if (distx > x) {
+                            x++;
+                        } else if (distx < x) {
+                            x--;
+                        }
+
+                        if (disty > y) {
+                            y++;
+                        } else if (disty < y) {
+                            y--;
+                        }
+                        idx = y * width + x;
+                        map[idx] = isClear ? -1 : -2;
+                        fill([x, y], isClear ? "#fff" : "#000");
+                    }
+                }
+
+                function mouseupEvent() {
+                    document.removeEventListener("mousemove", mousemoveEvent);
+                    document.removeEventListener("mouseup", mouseupEvent);
+                }
+                document.addEventListener("mousemove", mousemoveEvent);
+                document.addEventListener("mouseup", mouseupEvent);
+            }
+            document.addEventListener("mousedown", clickEvent);
+        </script>
+
+        <script>
+            function sleep(t) {
+                return new Promise((resolve) => setTimeout(resolve, t));
+            }
+
+            class BinaryHeap {
+                constructor(data, comparator) {
+                    this.data = data;
+                    this.comparator = comparator;
+                }
+
+                insert(v) {
+                    this.data.push(v);
+                    let idx = this.data.length - 1;
+                    let pIdx = Math.floor((idx - 1) / 2);
+                    while (
+                        pIdx >= 0 &&
+                        this.comparator(v, this.data[pIdx]) < 0
+                    ) {
+                        this.data[idx] = this.data[pIdx];
+                        this.data[pIdx] = v;
+                        idx = pIdx;
+                        pIdx = Math.floor((idx - 1) / 2);
+                    }
+                }
+
+                take() {
+                    let v = this.data[0];
+                    this.data[0] = this.data[this.data.length - 1];
+                    this.data.pop();
+                    let idx = 0;
+                    while (idx * 2 + 1 < this.data.length) {
+                        let leftIdx = idx * 2 + 1;
+                        let rightIdx = idx * 2 + 2;
+                        let minIdx =
+                            rightIdx >= this.data.length ||
+                            this.comparator(
+                                this.data[leftIdx],
+                                this.data[rightIdx]
+                            ) < 0
+                                ? leftIdx
+                                : rightIdx;
+                        if (
+                            this.comparator(this.data[minIdx], this.data[idx]) >
+                            0
+                        ) {
+                            break;
+                        } else {
+                            let temp = this.data[minIdx];
+                            this.data[minIdx] = this.data[idx];
+                            this.data[idx] = temp;
+                        }
+                        idx = minIdx;
+                    }
+                    return v;
+                }
+            }
+
+            // let heap = new BinaryHeap([3], (a, b) => a - b)
+            // heap.insert(5);
+            // heap.insert(2);
+            // heap.insert(4);
+            // heap.insert(1);
+            // heap.insert(6);
+
+            function distance([startX, startY], [distX, distY]) {
+                return (
+                    Math.pow(distX - startX, 2) + Math.pow(distY - startY, 2)
+                );
+            }
+
+            async function findPath() {
+                draw();
+                const start = [
+                    Number(document.getElementById("startx").value),
+                    Number(document.getElementById("starty").value),
+                ];
+                const end = [
+                    Number(document.getElementById("endy").value),
+                    Number(document.getElementById("endy").value),
+                ];
+
+                let map1 = [...map];
+                map1[start[1] * width + start[0]] = null;
+
+                const queue = new BinaryHeap(
+                    [start],
+                    (a, b) => distance(a, end) - distance(b, end)
+                );
+                let isFind = false;
+
+                async function insert([x, y], pre) {
+                    // 超出边界不入队
+                    if (x < 0 || x >= width || y < 0 || y >= height) return;
+                    // 遇墙或已走过不入队
+                    if (map1[y * width + x] != -1 || isFind) return;
+                    // 斜边两侧封闭不入队
+                    let diffx = x - pre[0];
+                    let diffy = y - pre[1];
+                    if (
+                        map1[(diffy + pre[1]) * width + pre[0]] === -2 &&
+                        map1[pre[1] * width + pre[0] + diffx] === -2
+                    )
+                        return;
+
+                    map1[y * width + x] = pre[1] * width + pre[0];
+
+                    fill([x, y], "#0f0");
+                    queue.insert([x, y]);
+
+                    if (x === end[0] && y === end[1]) {
+                        isFind = true;
+                        let idx = y * width + x;
+                        while (idx != null) {
+                            await sleep(5);
+                            idx = map1[idx];
+                            fill(
+                                [idx % width, Math.floor(idx / width)],
+                                "#f00"
+                            );
+                        }
+                    }
+
+                    await sleep(5);
+                }
+
+                let v = queue.take();
+                while (!isFind && v) {
+                    const [x, y] = v;
+                    await insert([x, y - 1], [x, y]);
+                    await insert([x + 1, y - 1], [x, y]);
+                    await insert([x + 1, y], [x, y]);
+                    await insert([x + 1, y + 1], [x, y]);
+                    await insert([x, y + 1], [x, y]);
+                    await insert([x - 1, y + 1], [x, y]);
+                    await insert([x - 1, y], [x, y]);
+                    await insert([x - 1, y - 1], [x, y]);
+                    v = queue.take();
+                }
+                if (isFind) {
+                    console.log("%c success find path!", "color: green;");
+                } else {
+                    console.log("%c oops! no path to end!", "color: red;");
+                }
+            }
+        </script>
+    </body>
+</html>

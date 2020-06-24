@@ -1,0 +1,24 @@
+html,
+            body {
+                margin: 0;
+                padding: 0;
+            }
+            .point-input {
+                border: 1px solid;
+                border-radius: 3px;
+                display: inline-block;
+                height: 24px;
+                line-height: 24px;
+            }
+
+            .point-input input {
+                width: 20px;
+                border: none;
+                border-radius: 3px;
+                height: 100%;
+                padding: 0;
+                margin: 0;
+                text-align: center;
+                line-height: 24px;
+                vertical-align: bottom;
+            }
